@@ -13,4 +13,9 @@ module.exports = function (app) {
     console.log('Funding interface is connected');
     app.datasources.FundingSoap.createModel('Funding', {});
   });
+
+  app.datasources.SMSSoap.once('connected', function () {
+    console.log('SMS interface is connected');
+    app.datasources.SMSSoap.createModel('SMS', {});
+  });
 };
