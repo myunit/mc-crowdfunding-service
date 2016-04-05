@@ -18,4 +18,9 @@ module.exports = function (app) {
     console.log('SMS interface is connected');
     app.datasources.SMSSoap.createModel('SMS', {});
   });
+
+  app.datasources.CustomerMgSoap.once('connected', function () {
+    console.log('CustomerMg interface is connected');
+    app.datasources.CustomerMgSoap.createModel('CustomerMg', {});
+  });
 };
