@@ -20,7 +20,7 @@ FundingIFS.prototype.addFundingOrder = function (data, callback) {
 		try {
 			callback(err, response.AddCrowdFundingOrderResult);
 		} catch (e) {
-			console.error('CustomerIFS setCaptcha Exception: ' + e);
+			console.error('FundingIFS setCaptcha Exception: ' + e);
 			callback(err, {HasError: 'false', Faults:'服务异常'});
 		}
 	});
@@ -33,7 +33,20 @@ FundingIFS.prototype.addFundingReserve = function (data, callback) {
 		try {
 			callback(err, response.AddCrowdFundingReserveResult);
 		} catch (e) {
-			console.error('CustomerIFS addFundingReserve Exception: ' + e);
+			console.error('FundingIFS addFundingReserve Exception: ' + e);
+			callback(err, {HasError: 'false', Faults:'服务异常'});
+		}
+	});
+};
+
+FundingIFS.prototype.finishPayFunding = function (data, callback) {
+	var Funding = this.DS.models.Funding;
+	var xml = fundingObj.finishPayFundingXML(data);
+	Funding.FinishPayCrowdFundingOrder(xml, function (err, response) {
+		try {
+			callback(err, response.FinishPayCrowdFundingOrderResult);
+		} catch (e) {
+			console.error('FundingIFS finishPayFunding Exception: ' + e);
 			callback(err, {HasError: 'false', Faults:'服务异常'});
 		}
 	});

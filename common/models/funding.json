@@ -43,6 +43,12 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "getFundingReserve"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "finishPayFunding"
     }
   ],
   "methods": {}

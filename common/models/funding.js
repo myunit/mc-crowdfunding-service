@@ -225,5 +225,46 @@ module.exports = function(Funding) {
 			}
 		);
 
+		//完成支付
+		Funding.finishPayFunding = function (data, cb) {
+			if (!data.userId) {
+				cb(null, {status: 0, msg: '参数错误'});
+				return;
+			}
+
+			fundingIFS.finishPayFunding(data, function (err, res) {
+				if (err) {
+					console.error('finishPayFunding err: ' + err);
+					cb({status: 0, msg: '操作异常'});
+					return;
+				}
+
+				if (res.HasError === 'true') {
+					console.error('finishPayFunding result err: ' + res.Faults.MessageFault.ErrorDescription);
+					cb({status: 0, msg: '生成验证码失败'});
+				} else {
+					cb(null, {status: 1, res: res.Body});
+				}
+			});
+
+		};
+
+		Funding.remoteMethod(
+			'finishPayFunding',
+			{
+				description: ['获取众筹预约.返回结果-status:操作结果 0 成功 -1 失败, res:支付结果, msg:附带信息'],
+				accepts: [
+					{
+						arg: 'data', type: 'object', required: true, http: {source: 'body'},
+						description: [
+							'获取众筹预约 {"userId":int, "fundingId":int}'
+						]
+					}
+				],
+				returns: {arg: 'repData', type: 'string'},
+				http: {path: '/finish-pay-funding', verb: 'post'}
+			}
+		);
+
 	});
 };
