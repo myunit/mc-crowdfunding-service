@@ -139,7 +139,7 @@ module.exports = function(Customer) {
                   console.error('login result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
                 } else {
-                  cb(null, {status: 1, msg: '登录成功'});
+                  cb(null, {status: 1, customer: res.Body});
                 }
               });
             }
@@ -158,7 +158,7 @@ module.exports = function(Customer) {
     Customer.remoteMethod(
         'login',
         {
-          description: ['登录.返回结果-status:操作结果 0 成功 -1 失败, msg:附带信息'],
+          description: ['登录.返回结果-status:操作结果 0 成功 -1 失败, customer:用户信息, msg:附带信息'],
           accepts: [
             {
               arg: 'data', type: 'object', required: true, http: {source: 'body'},
@@ -223,7 +223,7 @@ module.exports = function(Customer) {
                   console.error('register result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
                 } else {
-                  cb(null, {status: 1, msg: res.Body});
+                  cb(null, {status: 1, customer: res.Body});
                 }
               });
             }
@@ -242,7 +242,7 @@ module.exports = function(Customer) {
     Customer.remoteMethod(
         'register',
         {
-          description: ['用户注册.返回结果-status:操作结果 0 成功 -1 失败, msg:附带信息'],
+          description: ['用户注册.返回结果-status:操作结果 0 成功 -1 失败, customer:用户信息 , msg:附带信息'],
           accepts: [
             {
               arg: 'data', type: 'object', required: true, http: {source: 'body'},
