@@ -31,6 +31,12 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "addFundingOrder"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "addFundingReserve"
     }
   ],
   "methods": {}

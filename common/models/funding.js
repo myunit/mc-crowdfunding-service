@@ -120,7 +120,7 @@ module.exports = function(Funding) {
 					console.error('addFundingOrder result err: ' + res.Faults.MessageFault.ErrorDescription);
 					cb({status: 0, msg: '生成验证码失败'});
 				} else {
-					cb(null, {status: 1, count: res.TotalCount, funding: res.Body});
+					cb(null, {status: 1, funding: res.Body});
 				}
 			});
 
@@ -140,6 +140,47 @@ module.exports = function(Funding) {
 				],
 				returns: {arg: 'repData', type: 'string'},
 				http: {path: '/add-funding-order', verb: 'post'}
+			}
+		);
+
+		//添加众筹预约
+		Funding.addFundingReserve = function (data, cb) {
+			if (!data.userId) {
+				cb(null, {status: 0, msg: '参数错误'});
+				return;
+			}
+
+			fundingIFS.addFundingReserve(data, function (err, res) {
+				if (err) {
+					console.error('addFundingReserve err: ' + err);
+					cb({status: 0, msg: '操作异常'});
+					return;
+				}
+
+				if (res.HasError === 'true') {
+					console.error('addFundingReserve result err: ' + res.Faults.MessageFault.ErrorDescription);
+					cb({status: 0, msg: '生成验证码失败'});
+				} else {
+					cb(null, {status: 1, funding: res.Body});
+				}
+			});
+
+		};
+
+		Funding.remoteMethod(
+			'addFundingReserve',
+			{
+				description: ['添加众筹预约.返回结果-status:操作结果 0 成功 -1 失败, funding:众筹信息, msg:附带信息'],
+				accepts: [
+					{
+						arg: 'data', type: 'object', required: true, http: {source: 'body'},
+						description: [
+							'添加众筹预约 {"userId":int, "fundingId":int}'
+						]
+					}
+				],
+				returns: {arg: 'repData', type: 'string'},
+				http: {path: '/add-funding-reserve', verb: 'post'}
 			}
 		);
 

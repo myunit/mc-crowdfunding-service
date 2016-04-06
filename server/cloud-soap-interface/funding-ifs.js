@@ -16,11 +16,24 @@ exports = module.exports = FundingIFS;
 FundingIFS.prototype.addFundingOrder = function (data, callback) {
 	var Funding = this.DS.models.Funding;
 	var xml = fundingObj.addFundingOrderXML(data);
-	Funding.AddCrowFundingOrder(xml, function (err, response) {
+	Funding.AddCrowdFundingOrder(xml, function (err, response) {
 		try {
-			callback(err, response.AddCrowFundingOrderResult);
+			callback(err, response.AddCrowdFundingOrderResult);
 		} catch (e) {
 			console.error('CustomerIFS setCaptcha Exception: ' + e);
+			callback(err, {HasError: 'false', Faults:'服务异常'});
+		}
+	});
+};
+
+FundingIFS.prototype.addFundingReserve = function (data, callback) {
+	var Funding = this.DS.models.Funding;
+	var xml = fundingObj.addFundingReserveXML(data);
+	Funding.AddCrowdFundingReserve(xml, function (err, response) {
+		try {
+			callback(err, response.AddCrowdFundingReserveResult);
+		} catch (e) {
+			console.error('CustomerIFS addFundingReserve Exception: ' + e);
 			callback(err, {HasError: 'false', Faults:'服务异常'});
 		}
 	});
