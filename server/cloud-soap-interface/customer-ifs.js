@@ -51,3 +51,16 @@ CustomerIFS.prototype.login = function (data, callback) {
     }
   });
 };
+
+CustomerIFS.prototype.register = function (data, callback) {
+  var Customer = this.DS.models.Customer;
+  var xml = customerObj.registerXML(data);
+  Customer.Register(xml, function (err, response) {
+    try {
+      callback(err, response.RegisterResult);
+    } catch (e) {
+      console.error('CustomerIFS register Exception: ' + e);
+      callback(err, {HasError: 'false', Faults:'服务异常'});
+    }
+  });
+};

@@ -30,7 +30,7 @@ module.exports = function(Customer) {
                 }
 
                 if (res.HasError === 'true') {
-                  console.error('setCaptcha result err: ' + res.Faults);
+                  console.error('setCaptcha result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status: 0, msg: '生成验证码失败'});
                 } else {
                   cb(null, res.Body.Captcha);
@@ -51,8 +51,8 @@ module.exports = function(Customer) {
                   return;
                 }
                 if (res.HasError === 'true') {
-                  console.error('sendMsg result err: ' + res.Faults);
-                  cb({status:0, msg: res.Faults});
+                  console.error('sendMsg result err: ' + res.Faults.MessageFault.ErrorDescription);
+                  cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
                 } else {
                   cb(null, {status: 1, msg: '发送成功'});
                 }
@@ -106,7 +106,7 @@ module.exports = function(Customer) {
                 }
 
                 if (res.HasError === 'true') {
-                  console.error('getCaptcha result err: ' + res.Faults);
+                  console.error('getCaptcha result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status: 0, msg: '校验验证码失败'});
                 } else {
                   var failureDate = (new Date(res.Body.FailureDate)).getTime();
@@ -133,8 +133,8 @@ module.exports = function(Customer) {
                   return;
                 }
                 if (res.HasError === 'true') {
-                  console.error('login result err: ' + res.Faults);
-                  cb({status:0, msg: res.Faults});
+                  console.error('login result err: ' + res.Faults.MessageFault.ErrorDescription);
+                  cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
                 } else {
                   cb(null, {status: 1, msg: '发送成功'});
                 }
@@ -166,6 +166,92 @@ module.exports = function(Customer) {
           ],
           returns: {arg: 'repData', type: 'string'},
           http: {path: '/login', verb: 'post'}
+        }
+    );
+
+    //注册
+    Customer.register = function (data, callback) {
+      if (!data.phone) {
+        cb(null, {status: 0, msg: '参数错误'});
+        return;
+      }
+
+      async.waterfall(
+          [
+            function (cb) {
+              customerIFS.getCaptcha(data, function (err, res) {
+                if (err) {
+                  console.error('getCaptcha err: ' + err);
+                  cb({status: 0, msg: '操作异常'});
+                  return;
+                }
+
+                if (res.HasError === 'true') {
+                  console.error('getCaptcha result err: ' + res.Faults.MessageFault.ErrorDescription);
+                  cb({status: 0, msg: '校验验证码失败'});
+                } else {
+                  var failureDate = res.Body.FailureDate.split('T');
+                  failureDate = failureDate.join(' ');
+                  failureDate = (new Date(failureDate)).getTime();
+                  var now = (new Date()).getTime();
+                  if (now > failureDate) {
+                    cb({status: 0, msg: '验证码已过期'});
+                    return;
+                  }
+
+                  if (data.captcha !== res.Body.Captcha) {
+                    cb({status: 0, msg: '验证码错误'});
+                    return;
+                  }
+
+                  cb(null);
+                }
+              });
+            },
+            function (cb) {
+              customerIFS.register(data, function (err, res) {
+                if (err) {
+                  console.log('register err: ' + err);
+                  cb({status:0, msg: '操作异常'});
+                  return;
+                }
+
+                if (res.HasError === 'true') {
+                  console.error('register result err: ' + res.Faults.MessageFault.ErrorDescription);
+                  cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
+                } else {
+                  cb(null, {status: 1, msg: res.Body});
+                }
+              });
+            }
+          ],
+          function (err, msg) {
+            if (err) {
+              callback(null, err);
+            } else {
+              callback(null, msg);
+            }
+          }
+      );
+
+    };
+
+    Customer.remoteMethod(
+        'register',
+        {
+          description: ['用户注册.返回结果-status:操作结果 0 成功 -1 失败, msg:附带信息'],
+          accepts: [
+            {
+              arg: 'data', type: 'object', required: true, http: {source: 'body'},
+              description: [
+                '登录 {"phone":"string", "password":"string", "captcha":"string", "address":"string", "IDNo":"string",',
+                ' "categoryId":"int", "bossWeixin":"string", "categoryType":"int", "detailCategory":"string", "storeName":"string",',
+                ' "storeLink":"string", "email":"string", "name":"string", "pcdCode":"string", "pcd":"string", "qq":"string", "weixin":"string"}'
+              ]
+            }
+          ],
+          returns: {arg: 'repData', type: 'string'},
+          http: {path: '/register', verb: 'post'}
         }
     );
 
