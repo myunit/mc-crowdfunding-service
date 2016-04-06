@@ -216,12 +216,53 @@ module.exports = function(Funding) {
 					{
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
-							'获取众筹预约 {"userId":int, "fundingId":int}'
+							'获取众筹预约 {"userId":int, "pageId":int, "pageSize":int, "fundingId":int, "reserveId":int}'
 						]
 					}
 				],
 				returns: {arg: 'repData', type: 'string'},
 				http: {path: '/get-funding-reserve', verb: 'post'}
+			}
+		);
+
+		//获取众筹订单
+		Funding.getFundingOrder = function (data, cb) {
+			if (!data.userId) {
+				cb(null, {status: 0, msg: '参数错误'});
+				return;
+			}
+
+			fundingQueryIFS.getFundingOrder(data, function (err, res) {
+				if (err) {
+					console.error('getFundingOrder err: ' + err);
+					cb({status: 0, msg: '操作异常'});
+					return;
+				}
+
+				if (res.HasError === 'true') {
+					console.error('getFundingOrder result err: ' + res.Faults.MessageFault.ErrorDescription);
+					cb({status: 0, msg: '生成验证码失败'});
+				} else {
+					cb(null, {status: 1, orders: res.Body});
+				}
+			});
+
+		};
+
+		Funding.remoteMethod(
+			'getFundingOrder',
+			{
+				description: ['获取众筹订单.返回结果-status:操作结果 0 成功 -1 失败, orders:订单, msg:附带信息'],
+				accepts: [
+					{
+						arg: 'data', type: 'object', required: true, http: {source: 'body'},
+						description: [
+							'获取众筹订单 {"userId":int, "pageId":int, "pageSize":int, "fundingId":int, "orderId":int}'
+						]
+					}
+				],
+				returns: {arg: 'repData', type: 'string'},
+				http: {path: '/get-funding-order', verb: 'post'}
 			}
 		);
 

@@ -51,3 +51,16 @@ FundingQueryIFS.prototype.getFundingReserve = function (data, callback) {
 		}
 	});
 };
+
+FundingQueryIFS.prototype.getFundingOrder = function (data, callback) {
+	var FundingQuery = this.DS.models.FundingQuery;
+	var xml = fundingQueryObj.getFundingOrderXML(data);
+	FundingQuery.GetAllCrowdFundingOrder(xml, function (err, response) {
+		try {
+			callback(err, response.GetAllCrowdFundingOrderResult);
+		} catch (e) {
+			console.error('FundingQueryIFS getFundingOrder Exception: ' + e);
+			callback(err, {HasError: 'false', Faults:'服务异常'});
+		}
+	});
+};
