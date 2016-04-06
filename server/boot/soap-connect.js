@@ -23,4 +23,14 @@ module.exports = function (app) {
     console.log('CustomerMg interface is connected');
     app.datasources.CustomerMgSoap.createModel('CustomerMg', {});
   });
+
+  app.datasources.FundingQuerySoap.once('connected', function () {
+    console.log('FundingQuery interface is connected');
+    app.datasources.FundingQuerySoap.createModel('FundingQuery', {});
+  });
+
+  app.datasources.CustomerQuerySoap.once('connected', function () {
+    console.log('CustomerQuery interface is connected');
+    app.datasources.CustomerQuerySoap.createModel('CustomerQuery', {});
+  });
 };

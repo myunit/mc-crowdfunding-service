@@ -9,11 +9,23 @@
     "connector": "soap",
     "wsdl": "http://10.10.5.120:1187/Shopping/CrowdFundingService.svc?WSDL"
   },
+  "FundingQuerySoap": {
+    "url": "http://10.10.5.110:11873/CrowdFundingService.svc",
+    "name": "FundingQuerySoap",
+    "connector": "soap",
+    "wsdl": "http://10.10.5.110:11873/CrowdFundingService.svc/mex?WSDL"
+  },
   "CustomerSoap": {
     "url": "http://10.10.5.120:1187/CM/CustomerActionService.svc",
     "name": "CustomerSoap",
     "connector": "soap",
     "wsdl": "http://10.10.5.120:1187/CM/CustomerActionService.svc?WSDL"
+  },
+  "CustomerQuerySoap": {
+    "url": "http://10.10.5.110:11873/CustomerQueryService.svc",
+    "name": "CustomerQuerySoap",
+    "connector": "soap",
+    "wsdl": "http://10.10.5.110:11873/CustomerQueryService.svc/mex?WSDL"
   },
   "CustomerMgSoap": {
     "url": "http://10.10.5.120:1187/CM/CustomerManagementService.svc",
