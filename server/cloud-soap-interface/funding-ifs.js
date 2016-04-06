@@ -13,12 +13,12 @@ var FundingIFS = function (app) {
 util.inherits(FundingIFS, Object);
 exports = module.exports = FundingIFS;
 
-FundingIFS.prototype.setCaptcha = function (data, callback) {
+FundingIFS.prototype.addFundingOrder = function (data, callback) {
 	var Funding = this.DS.models.Funding;
-	var xml = fundingObj.setCaptchaXML(data);
-	Funding.SetCaptcha(xml, function (err, response) {
+	var xml = fundingObj.addFundingOrderXML(data);
+	Funding.AddCrowFundingOrder(xml, function (err, response) {
 		try {
-			callback(err, response.SetCaptchaResult);
+			callback(err, response.AddCrowFundingOrderResult);
 		} catch (e) {
 			console.error('CustomerIFS setCaptcha Exception: ' + e);
 			callback(err, {HasError: 'false', Faults:'服务异常'});
