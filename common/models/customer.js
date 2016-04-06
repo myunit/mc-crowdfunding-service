@@ -105,7 +105,7 @@ module.exports = function(Customer) {
                   return;
                 }
 
-                if (res.HasError === 'true') {
+                if (res.HasError === 'true' || !res.Body) {
                   console.error('getCaptcha result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status: 0, msg: '校验验证码失败'});
                 } else {
@@ -135,10 +135,15 @@ module.exports = function(Customer) {
                   return;
                 }
 
-                if (res.HasError === 'true') {
+                if (res.HasError === 'true' || !res.Body) {
                   console.error('login result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
                 } else {
+                  delete res.Body.Agent;
+                  delete res.Body.ActionLogs;
+                  delete res.Body.CustomerManager;
+                  delete res.Body.DeliveryConfiguration;
+                  delete res.Body.Sales;
                   cb(null, {status: 1, customer: res.Body});
                 }
               });
@@ -189,7 +194,7 @@ module.exports = function(Customer) {
                   return;
                 }
 
-                if (res.HasError === 'true') {
+                if (res.HasError === 'true'  || !res.Body) {
                   console.error('getCaptcha result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status: 0, msg: '校验验证码失败'});
                 } else {
@@ -219,7 +224,7 @@ module.exports = function(Customer) {
                   return;
                 }
 
-                if (res.HasError === 'true') {
+                if (res.HasError === 'true'  || !res.Body) {
                   console.error('register result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
                 } else {
