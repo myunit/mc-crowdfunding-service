@@ -36,5 +36,9 @@
   "Customer": {
     "dataSource": null,
     "public": true
+  },
+  "Funding": {
+    "dataSource": null,
+    "public": true
   }
 }
