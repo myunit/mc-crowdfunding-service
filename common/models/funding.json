@@ -37,6 +37,12 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "addFundingReserve"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "getFundingReserve"
     }
   ],
   "methods": {}

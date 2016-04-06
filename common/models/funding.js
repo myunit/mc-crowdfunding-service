@@ -184,5 +184,46 @@ module.exports = function(Funding) {
 			}
 		);
 
+		//获取众筹预约
+		Funding.getFundingReserve = function (data, cb) {
+			if (!data.userId) {
+				cb(null, {status: 0, msg: '参数错误'});
+				return;
+			}
+
+			fundingQueryIFS.getFundingReserve(data, function (err, res) {
+				if (err) {
+					console.error('getFundingReserve err: ' + err);
+					cb({status: 0, msg: '操作异常'});
+					return;
+				}
+
+				if (res.HasError === 'true') {
+					console.error('getFundingReserve result err: ' + res.Faults.MessageFault.ErrorDescription);
+					cb({status: 0, msg: '生成验证码失败'});
+				} else {
+					cb(null, {status: 1, reserve: res.Body});
+				}
+			});
+
+		};
+
+		Funding.remoteMethod(
+			'getFundingReserve',
+			{
+				description: ['获取众筹预约.返回结果-status:操作结果 0 成功 -1 失败, reserve:预约, msg:附带信息'],
+				accepts: [
+					{
+						arg: 'data', type: 'object', required: true, http: {source: 'body'},
+						description: [
+							'获取众筹预约 {"userId":int, "fundingId":int}'
+						]
+					}
+				],
+				returns: {arg: 'repData', type: 'string'},
+				http: {path: '/get-funding-reserve', verb: 'post'}
+			}
+		);
+
 	});
 };
