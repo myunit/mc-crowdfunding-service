@@ -13,14 +13,14 @@ var FundingQueryIFS = function (app) {
 util.inherits(FundingQueryIFS, Object);
 exports = module.exports = FundingQueryIFS;
 
-FundingQueryIFS.prototype.setCaptcha = function (data, callback) {
+FundingQueryIFS.prototype.getAllFunding = function (data, callback) {
 	var FundingQuery = this.DS.models.FundingQuery;
-	var xml = fundingQueryObj.setCaptchaXML(data);
-	FundingQuery.SetCaptcha(xml, function (err, response) {
+	var xml = fundingQueryObj.getAllFundingXML(data);
+	FundingQuery.GetAllCrowdFunding(xml, function (err, response) {
 		try {
-			callback(err, response.SetCaptchaResult);
+			callback(err, response.GetAllCrowdFundingResult);
 		} catch (e) {
-			console.error('CustomerIFS setCaptcha Exception: ' + e);
+			console.error('FundingQueryIFS getAllFunding Exception: ' + e);
 			callback(err, {HasError: 'false', Faults:'服务异常'});
 		}
 	});
