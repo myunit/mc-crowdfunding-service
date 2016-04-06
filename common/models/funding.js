@@ -102,5 +102,46 @@ module.exports = function(Funding) {
 			}
 		);
 
+		//添加众筹订单
+		Funding.addFundingOrder = function (data, cb) {
+			if (!data.userId) {
+				cb(null, {status: 0, msg: '参数错误'});
+				return;
+			}
+
+			fundingIFS.addFundingOrder(data, function (err, res) {
+				if (err) {
+					console.error('addFundingOrder err: ' + err);
+					cb({status: 0, msg: '操作异常'});
+					return;
+				}
+
+				if (res.HasError === 'true') {
+					console.error('addFundingOrder result err: ' + res.Faults.MessageFault.ErrorDescription);
+					cb({status: 0, msg: '生成验证码失败'});
+				} else {
+					cb(null, {status: 1, count: res.TotalCount, funding: res.Body});
+				}
+			});
+
+		};
+
+		Funding.remoteMethod(
+			'addFundingOrder',
+			{
+				description: ['添加众筹订单.返回结果-status:操作结果 0 成功 -1 失败, funding:众筹信息, msg:附带信息'],
+				accepts: [
+					{
+						arg: 'data', type: 'object', required: true, http: {source: 'body'},
+						description: [
+							'添加众筹订单 {"userId":int, "fundingId":int, "quantity":int, "price":float}'
+						]
+					}
+				],
+				returns: {arg: 'repData', type: 'string'},
+				http: {path: '/add-funding-order', verb: 'post'}
+			}
+		);
+
 	});
 };

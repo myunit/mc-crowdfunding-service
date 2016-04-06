@@ -25,6 +25,12 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "getFundingProgress"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "addFundingOrder"
     }
   ],
   "methods": {}
