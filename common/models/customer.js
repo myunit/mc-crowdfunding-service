@@ -109,14 +109,16 @@ module.exports = function(Customer) {
                   console.error('getCaptcha result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status: 0, msg: '校验验证码失败'});
                 } else {
-                  var failureDate = (new Date(res.Body.FailureDate)).getTime();
+                  var failureDate = res.Body.FailureDate.split('T');
+                  failureDate = failureDate.join(' ');
+                  failureDate = (new Date(failureDate)).getTime();
                   var now = (new Date()).getTime();
                   if (now > failureDate) {
                     cb({status: 0, msg: '验证码已过期'});
                     return;
                   }
 
-                  if (data.captcha !== res.body.Captcha) {
+                  if (data.captcha !== res.Body.Captcha) {
                     cb({status: 0, msg: '验证码错误'});
                     return;
                   }
@@ -132,11 +134,12 @@ module.exports = function(Customer) {
                   cb({status:0, msg: '操作异常'});
                   return;
                 }
+
                 if (res.HasError === 'true') {
                   console.error('login result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
                 } else {
-                  cb(null, {status: 1, msg: '发送成功'});
+                  cb(null, {status: 1, msg: '登录成功'});
                 }
               });
             }
