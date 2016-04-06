@@ -25,3 +25,16 @@ FundingQueryIFS.prototype.getAllFunding = function (data, callback) {
 		}
 	});
 };
+
+FundingQueryIFS.prototype.getFundingProgress = function (data, callback) {
+	var FundingQuery = this.DS.models.FundingQuery;
+	var xml = fundingQueryObj.getFundingProgressXML(data);
+	FundingQuery.GetAllCrowdFundingProgress(xml, function (err, response) {
+		try {
+			callback(err, response.GetAllCrowdFundingProgressResult);
+		} catch (e) {
+			console.error('FundingQueryIFS getFundingProgress Exception: ' + e);
+			callback(err, {HasError: 'false', Faults:'服务异常'});
+		}
+	});
+};

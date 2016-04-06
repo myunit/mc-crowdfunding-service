@@ -135,3 +135,112 @@ exports.getAllFundingXML = function (obj) {
 
 	return xml(xmlObj, true);
 };
+
+exports.getFundingProgressXML = function (obj) {
+	var xmlObj = [{
+		GetAllCrowdFundingProgress: [
+			{
+				_attr: {
+					xmlns: 'http://tempuri.org/'
+				}
+			},
+			{
+				CrowdFundingSysNo: [
+					{
+						_attr: {
+							'xmlns:d4p1': 'http://schemas.datacontract.org/2004/07/MYun.Framework.Service',
+							'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+						}
+					},
+					{
+						'd4p1:Header': [
+							{
+								'd4p1:AppKey': [
+									{
+										_attr: {
+											'i:nil': 'true'
+										}
+									}
+								]
+							},
+							{
+								'd4p1:OperationUser': [
+									{
+										'd4p1:FullName': [
+											{
+												_attr: {
+													'i:nil': 'true'
+												}
+											}
+										]
+									},
+									{
+										'd4p1:UserSysNo': obj.userId
+									}
+								]
+							},
+							{
+								'd4p1:Sender': [
+									{
+										_attr: {
+											'i:nil': 'true'
+										}
+									}
+								]
+							},
+							{
+								'd4p1:SessionKey': [
+									{
+										_attr: {
+											'i:nil': 'true'
+										}
+									}
+								]
+							},
+							{
+								'd4p1:Sign': [
+									{
+										_attr: {
+											'i:nil': 'true'
+										}
+									}
+								]
+							},
+							{
+								'd4p1:Timestamp': 0
+							}
+						]
+					},
+					{
+						'd4p1:PagingInfo': [
+							{
+								'd4p1:CurrentPage': obj.pageId
+							},
+							{
+								'd4p1:PageSize': obj.pageSize
+							},
+							{
+								'd4p1:SortType': [
+									{
+										_attr: {
+											'i:nil': 'true'
+										}
+									}
+								]
+							},
+							{
+								'd4p1:TotalCount': 0
+							}
+						]
+					},
+					{
+						'd4p1:Body': obj.fundingId
+					}
+
+				]
+			}
+		]
+	}];
+
+	return xml(xmlObj, true);
+};
