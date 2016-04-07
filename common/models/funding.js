@@ -7,6 +7,7 @@ var loopback = require('loopback');
 var async = require('async');
 var FundingQueryIFS = require('../../server/cloud-soap-interface/fundingQuery-ifs');
 var FundingIFS = require('../../server/cloud-soap-interface/funding-ifs');
+var ImgQueryIFS = require('../../server/cloud-soap-interface/imgQuery-ifs');
 
 module.exports = function(Funding) {
 	Funding.getApp(function (err, app) {
@@ -16,6 +17,7 @@ module.exports = function(Funding) {
 		var app_self = app;
 		var fundingQueryIFS = new FundingQueryIFS(app);
 		var fundingIFS = new FundingIFS(app);
+		var imgQueryIFS = new ImgQueryIFS(app);
 
 		//获取众筹
 		Funding.getAllFunding = function (data, cb) {
@@ -325,7 +327,42 @@ module.exports = function(Funding) {
 					console.error('getHotFunding result err: ' + res.Faults.MessageFault.ErrorDescription);
 					cb({status: 0, msg: '生成验证码失败'});
 				} else {
-					cb(null, {status: 1, count: res.TotalCount, funding: res.Body});
+					var fundingList = res.Body.CrowdFunding;
+					async.map(fundingList, function(item, callback) {
+						//console.log('item: ' + JSON.stringify(item));
+						item.MaxTargetPercent = parseFloat(item.MaxTargetPercent);
+						item.MinBuyQuantity = parseInt(item.MinBuyQuantity);
+						item.PerCustomerLimit = parseInt(item.PerCustomerLimit);
+						item.PublishStatus = parseInt(item.PublishStatus);
+						item.Quantity = parseInt(item.Quantity);
+						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
+						item.HaveCrowdFundingAmount = parseFloat(item.HaveCrowdFundingAmount);
+						item.RemiseInterestRate = parseFloat(item.RemiseInterestRate);
+						item.SysNo = parseInt(item.SysNo);
+						item.TargetAmount = parseFloat(item.TargetAmount);
+						item.UnitPrice = parseFloat(item.UnitPrice);
+						item.WholesaleGrossProfit = parseFloat(item.WholesaleGrossProfit);
+						item.StartDate = item.StartDate.replace('T', ' ');
+						item.EndDate = item.EndDate.replace('T', ' ');
+						var diff = (new Date(item.EndDate)).getTime() - (new Date(item.StartDate)).getTime();
+						diff = diff/(24*3600*1000);
+						if (diff < 1) {
+							item.RemainDay = 1;
+						} else {
+							item.RemainDay = Math.round(diff);
+						}
+
+						item.CompletePercent = parseInt((item.HaveCrowdFundingCount/item.Quantity)*100);
+
+						imgQueryIFS.getImg({imgId: item.SysNo}, function (err, res) {
+							if (!err && res.HasError !== 'true') {
+								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ImgValue});
+							}
+						});
+					}, function(err,results) {
+						cb(null, {status: 1, count: res.TotalCount, funding: fundingList, img: results});
+					});
+
 				}
 			});
 

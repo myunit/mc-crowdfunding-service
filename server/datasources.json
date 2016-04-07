@@ -15,6 +15,12 @@
     "connector": "soap",
     "wsdl": "http://10.10.5.110:11873/CrowdFundingService.svc/mex?WSDL"
   },
+  "ImgQuerySoap": {
+    "url": "http://10.10.5.110:11873/ShoppingImgService.svc",
+    "name": "ImgQuerySoap",
+    "connector": "soap",
+    "wsdl": "http://10.10.5.110:11873/ShoppingImgService.svc/mex?WSDL"
+  },
   "CustomerSoap": {
     "url": "http://10.10.5.120:1187/CM/CustomerActionService.svc",
     "name": "CustomerSoap",
