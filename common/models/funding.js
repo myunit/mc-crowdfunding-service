@@ -37,7 +37,64 @@ module.exports = function(Funding) {
 					console.error('getAllFunding result err: ' + res.Faults.MessageFault.ErrorDescription);
 					cb({status: 0, msg: '生成验证码失败'});
 				} else {
-					cb(null, {status: 1, count: res.TotalCount, funding: res.Body});
+					var fundingList = [];
+					var count = parseInt(res.TotalCount);
+
+					if (count === 1) {
+						fundingList.push(res.Body.CrowdFunding);
+					} else if (count > 1){
+						fundingList = res.Body.CrowdFunding;
+					}
+
+					async.map(fundingList, function(item, callback) {
+						//console.log('item: ' + JSON.stringify(item));
+						item.MaxTargetPercent = parseFloat(item.MaxTargetPercent);
+						item.MinBuyQuantity = parseInt(item.MinBuyQuantity);
+						item.PerCustomerLimit = parseInt(item.PerCustomerLimit);
+						item.PublishStatus = parseInt(item.PublishStatus);
+						item.CrowdFundingOrderCount = parseInt(item.CrowdFundingOrderCount);
+						item.CrowdFundingType = parseInt(item.CrowdFundingType);
+						item.CrowdFundingStatus = parseInt(item.CrowdFundingStatus);
+						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
+						item.Quantity = parseInt(item.Quantity);
+						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
+						item.HaveCrowdFundingAmount = parseFloat(item.HaveCrowdFundingAmount);
+						item.RemiseInterestRate = parseFloat(item.RemiseInterestRate);
+						item.SysNo = parseInt(item.SysNo);
+						item.TargetAmount = parseFloat(item.TargetAmount);
+						item.UnitPrice = parseFloat(item.UnitPrice);
+						item.WholesaleGrossProfit = parseFloat(item.WholesaleGrossProfit);
+						item.StartDate = item.StartDate.replace('T', ' ');
+						item.EndDate = item.EndDate.replace('T', ' ');
+						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
+						if (diff > 0) {
+							diff = diff/(24*3600*1000);
+							if (diff < 1) {
+								item.RemainDay = 1;
+							} else {
+								item.RemainDay = Math.round(diff);
+							}
+						} else {
+							item.RemainDay = 0;
+						}
+
+
+						item.CompletePercent = parseInt((item.HaveCrowdFundingCount/item.Quantity)*100);
+						if (!item.RemainDay || item.HaveCrowdFundingCount === item.Quantity) {
+							item.IsEnd = true;
+						} else {
+							item.IsEnd = false;
+						}
+
+
+						imgQueryIFS.getImg({imgId: item.SysNo}, function (err, res) {
+							if (!err && res.HasError !== 'true') {
+								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ImgValue});
+							}
+						});
+					}, function(err,results) {
+						cb(null, {status: 1, count: count, funding: fundingList, img: results});
+					});
 				}
 			});
 
@@ -327,13 +384,24 @@ module.exports = function(Funding) {
 					console.error('getHotFunding result err: ' + res.Faults.MessageFault.ErrorDescription);
 					cb({status: 0, msg: '生成验证码失败'});
 				} else {
-					var fundingList = res.Body.CrowdFunding;
+					var fundingList = [];
+					var count = parseInt(res.TotalCount);
+
+					if (count === 1) {
+						fundingList.push(res.Body.CrowdFunding);
+					} else if (count > 1){
+						fundingList = res.Body.CrowdFunding;
+					}
 					async.map(fundingList, function(item, callback) {
 						//console.log('item: ' + JSON.stringify(item));
 						item.MaxTargetPercent = parseFloat(item.MaxTargetPercent);
 						item.MinBuyQuantity = parseInt(item.MinBuyQuantity);
 						item.PerCustomerLimit = parseInt(item.PerCustomerLimit);
 						item.PublishStatus = parseInt(item.PublishStatus);
+						item.CrowdFundingOrderCount = parseInt(item.CrowdFundingOrderCount);
+						item.CrowdFundingType = parseInt(item.CrowdFundingType);
+						item.CrowdFundingStatus = parseInt(item.CrowdFundingStatus);
+						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
 						item.HaveCrowdFundingAmount = parseFloat(item.HaveCrowdFundingAmount);
@@ -344,15 +412,25 @@ module.exports = function(Funding) {
 						item.WholesaleGrossProfit = parseFloat(item.WholesaleGrossProfit);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
-						var diff = (new Date(item.EndDate)).getTime() - (new Date(item.StartDate)).getTime();
-						diff = diff/(24*3600*1000);
-						if (diff < 1) {
-							item.RemainDay = 1;
+						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
+						if (diff > 0) {
+							diff = diff/(24*3600*1000);
+							if (diff < 1) {
+								item.RemainDay = 1;
+							} else {
+								item.RemainDay = Math.round(diff);
+							}
 						} else {
-							item.RemainDay = Math.round(diff);
+							item.RemainDay = 0;
 						}
 
+
 						item.CompletePercent = parseInt((item.HaveCrowdFundingCount/item.Quantity)*100);
+						if (!item.RemainDay || item.HaveCrowdFundingCount === item.Quantity) {
+							item.IsEnd = true;
+						} else {
+							item.IsEnd = false;
+						}
 
 						imgQueryIFS.getImg({imgId: item.SysNo}, function (err, res) {
 							if (!err && res.HasError !== 'true') {
@@ -360,7 +438,7 @@ module.exports = function(Funding) {
 							}
 						});
 					}, function(err,results) {
-						cb(null, {status: 1, count: res.TotalCount, funding: fundingList, img: results});
+						cb(null, {status: 1, count: count, funding: fundingList, img: results});
 					});
 
 				}
