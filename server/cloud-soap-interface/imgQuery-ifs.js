@@ -16,9 +16,9 @@ exports = module.exports = ImgQueryIFS;
 ImgQueryIFS.prototype.getImg = function (data, callback) {
 	var ImgQuery = this.DS.models.ImgQuery;
 	var xml = imgQueryObj.getImgXML(data);
-	ImgQuery.GetShoppingImgBySysNo(xml, function (err, response) {
+	ImgQuery.GetShoppingImgByImgTypeAndImgKey(xml, function (err, response) {
 		try {
-			callback(err, response.GetShoppingImgBySysNoResult);
+			callback(err, response.GetShoppingImgByImgTypeAndImgKeyResult);
 		} catch (e) {
 			console.error('ImgQueryIFS getImg Exception: ' + e);
 			callback(err, {HasError: 'false', Faults:'服务异常'});

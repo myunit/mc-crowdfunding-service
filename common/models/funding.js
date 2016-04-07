@@ -87,9 +87,9 @@ module.exports = function(Funding) {
 						}
 
 
-						imgQueryIFS.getImg({imgId: item.SysNo}, function (err, res) {
+						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true') {
-								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ImgValue});
+								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
 							}
 						});
 					}, function(err,results) {
@@ -432,9 +432,9 @@ module.exports = function(Funding) {
 							item.IsEnd = false;
 						}
 
-						imgQueryIFS.getImg({imgId: item.SysNo}, function (err, res) {
+						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true') {
-								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ImgValue});
+								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
 							}
 						});
 					}, function(err,results) {
