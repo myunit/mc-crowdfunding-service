@@ -464,5 +464,106 @@ module.exports = function(Funding) {
 			}
 		);
 
+		//获取众筹详情
+		Funding.getFundingDetail = function (data, cb) {
+			if (!data.userId) {
+				cb(null, {status: 0, msg: '参数错误'});
+				return;
+			}
+
+			data.pageId = 0;
+			data.pageSize = 1;
+			data.fundingStatus = -1;
+			data.fundingType = -1;
+			fundingQueryIFS.getAllFunding(data, function (err, res) {
+				if (err) {
+					console.error('getAllFunding err: ' + err);
+					cb({status: 0, msg: '操作异常'});
+					return;
+				}
+
+				if (res.HasError === 'true') {
+					console.error('getAllFunding result err: ' + res.Faults.MessageFault.ErrorDescription);
+					cb({status: 0, msg: '生成验证码失败'});
+				} else {
+					var item = {};
+					var count = parseInt(res.TotalCount);
+
+					if (count === 1) {
+						item = res.Body.CrowdFunding;
+						//console.log('item: ' + JSON.stringify(item));
+						item.MaxTargetPercent = parseFloat(item.MaxTargetPercent);
+						item.MinBuyQuantity = parseInt(item.MinBuyQuantity);
+						item.PerCustomerLimit = parseInt(item.PerCustomerLimit);
+						item.PublishStatus = parseInt(item.PublishStatus);
+						item.CrowdFundingOrderCount = parseInt(item.CrowdFundingOrderCount);
+						item.CrowdFundingType = parseInt(item.CrowdFundingType);
+						item.CrowdFundingStatus = parseInt(item.CrowdFundingStatus);
+						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
+						item.Quantity = parseInt(item.Quantity);
+						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
+						item.HaveCrowdFundingAmount = parseFloat(item.HaveCrowdFundingAmount);
+						item.RemiseInterestRate = parseFloat(item.RemiseInterestRate);
+						item.SysNo = parseInt(item.SysNo);
+						item.TargetAmount = parseFloat(item.TargetAmount);
+						item.UnitPrice = parseFloat(item.UnitPrice);
+						item.WholesaleGrossProfit = parseFloat(item.WholesaleGrossProfit);
+						item.StartDate = item.StartDate.replace('T', ' ');
+						item.EndDate = item.EndDate.replace('T', ' ');
+						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
+						if (diff > 0) {
+							diff = diff/(24*3600*1000);
+							if (diff < 1) {
+								item.RemainDay = 1;
+							} else {
+								item.RemainDay = Math.round(diff);
+							}
+						} else {
+							item.RemainDay = 0;
+						}
+
+
+						item.CompletePercent = parseInt((item.HaveCrowdFundingCount/item.Quantity)*100);
+						if (!item.RemainDay || item.HaveCrowdFundingCount === item.Quantity) {
+							item.IsEnd = true;
+						} else {
+							item.IsEnd = false;
+						}
+
+						var imgTypes = [0,1,2,3,4,5,6,7];
+						async.map(imgTypes, function(type, callback) {
+							imgQueryIFS.getImg({imgKey: item.SysNo, imgType: type}, function (err, res) {
+								if (!err && res.HasError !== 'true') {
+									callback(null, {type: type, ImgValue: res.Body.ShoppingImg.ImgValue});
+								}
+							});
+						}, function(err,results) {
+							cb(null, {status: 1, count: count, funding: item, img: results});
+						});
+					} else {
+						cb(null, {status: 1, count: count, funding: item, img: []});
+					}
+				}
+			});
+
+		};
+
+		Funding.remoteMethod(
+			'getFundingDetail',
+			{
+				description: ['获取众筹详情.返回结果-status:操作结果 0 成功 -1 失败, funding:众筹信息, msg:附带信息'],
+				accepts: [
+					{
+						arg: 'data', type: 'object', required: true, http: {source: 'body'},
+						description: [
+							'获取众筹详情 {"userId":int, "fundingId":int }'
+						]
+					}
+				],
+				returns: {arg: 'repData', type: 'string'},
+				http: {path: '/get-funding-detail', verb: 'post'}
+			}
+		);
+
 	});
 };

@@ -61,6 +61,12 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "getHotFunding"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "getFundingDetail"
     }
   ],
   "methods": {}
