@@ -55,6 +55,12 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "finishPayFunding"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "getHotFunding"
     }
   ],
   "methods": {}

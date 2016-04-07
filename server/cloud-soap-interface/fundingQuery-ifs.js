@@ -64,3 +64,16 @@ FundingQueryIFS.prototype.getFundingOrder = function (data, callback) {
 		}
 	});
 };
+
+FundingQueryIFS.prototype.getHotFunding = function (data, callback) {
+	var FundingQuery = this.DS.models.FundingQuery;
+	var xml = fundingQueryObj.getHotFundingXML(data);
+	FundingQuery.GetAllHotCrowdFunding(xml, function (err, response) {
+		try {
+			callback(err, response.GetAllHotCrowdFundingResult);
+		} catch (e) {
+			console.error('FundingQueryIFS getHotFunding Exception: ' + e);
+			callback(err, {HasError: 'false', Faults:'服务异常'});
+		}
+	});
+};

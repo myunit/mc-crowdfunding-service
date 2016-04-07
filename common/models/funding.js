@@ -49,7 +49,7 @@ module.exports = function(Funding) {
 					{
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
-							'获取验证码信息 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int',
+							'获取众筹 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int',
 							', "fundingId":int, "brandName":"string"}, ',
 							'fundingStatus:众筹状态(-1-全部 0-预热 1-进行中 10-已结束), fundingType: 众筹类型(1-品牌 2-产品 3-权益),',
 							' fundingId:众筹编号, brandName: 品牌名称'
@@ -93,7 +93,7 @@ module.exports = function(Funding) {
 					{
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
-							'获取验证码信息 {"userId":int, "pageId":int, "pageSize":int, "fundingId":int}'
+							'获取众筹进度 {"userId":int, "pageId":int, "pageSize":int, "fundingId":int}'
 						]
 					}
 				],
@@ -304,6 +304,50 @@ module.exports = function(Funding) {
 				],
 				returns: {arg: 'repData', type: 'string'},
 				http: {path: '/finish-pay-funding', verb: 'post'}
+			}
+		);
+
+		//获取热门众筹
+		Funding.getHotFunding = function (data, cb) {
+			if (!data.userId) {
+				cb(null, {status: 0, msg: '参数错误'});
+				return;
+			}
+
+			fundingQueryIFS.getHotFunding(data, function (err, res) {
+				if (err) {
+					console.error('getHotFunding err: ' + err);
+					cb({status: 0, msg: '操作异常'});
+					return;
+				}
+
+				if (res.HasError === 'true') {
+					console.error('getHotFunding result err: ' + res.Faults.MessageFault.ErrorDescription);
+					cb({status: 0, msg: '生成验证码失败'});
+				} else {
+					cb(null, {status: 1, count: res.TotalCount, funding: res.Body});
+				}
+			});
+
+		};
+
+		Funding.remoteMethod(
+			'getHotFunding',
+			{
+				description: ['获取热门众筹.返回结果-status:操作结果 0 成功 -1 失败, funding:众筹信息, msg:附带信息'],
+				accepts: [
+					{
+						arg: 'data', type: 'object', required: true, http: {source: 'body'},
+						description: [
+							'获取热门众筹 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int',
+							', "fundingId":int, "brandName":"string"}, ',
+							'fundingStatus:众筹状态(-1-全部 0-预热 1-进行中 10-已结束), fundingType: 众筹类型(1-品牌 2-产品 3-权益),',
+							' fundingId:众筹编号, brandName: 品牌名称'
+						]
+					}
+				],
+				returns: {arg: 'repData', type: 'string'},
+				http: {path: '/get-hot-funding', verb: 'post'}
 			}
 		);
 
