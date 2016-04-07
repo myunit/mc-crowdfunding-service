@@ -510,6 +510,7 @@ module.exports = function(Funding) {
 						item.WholesaleGrossProfit = parseFloat(item.WholesaleGrossProfit);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
+						item.UnitPercent = parseFloat((item.RemiseInterestRate/item.Quantity).toFixed(2));
 						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);
