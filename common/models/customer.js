@@ -15,7 +15,7 @@ module.exports = function(Customer) {
     //获取验证码
     Customer.sendCaptcha = function (data, callback) {
       if (!data.phone) {
-        cb(null, {status: 0, msg: '参数错误'});
+        callback(null, {status: 0, msg: '参数错误'});
         return;
       }
 
@@ -91,7 +91,7 @@ module.exports = function(Customer) {
     //登录
     Customer.login = function (data, callback) {
       if (!data.phone) {
-        cb(null, {status: 0, msg: '参数错误'});
+        callback(null, {status: 0, msg: '参数错误'});
         return;
       }
 
@@ -180,7 +180,7 @@ module.exports = function(Customer) {
     //注册
     Customer.register = function (data, callback) {
       if (!data.phone) {
-        cb(null, {status: 0, msg: '参数错误'});
+        callback(null, {status: 0, msg: '参数错误'});
         return;
       }
 

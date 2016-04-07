@@ -616,10 +616,10 @@ exports.getHotFundingXML = function (obj) {
 								'd5p1:CrowdFundingStatus': -1
 							},
 							{
-								'd5p1:CrowdFundingType': obj.type
+								'd5p1:CrowdFundingType': obj.fundingType
 							},
 							{
-								'd5p1:PublishStatus': -1
+								'd5p1:PublishStatus': 1
 							},
 							{
 								'd5p1:SysNo': obj.fundingId || 0

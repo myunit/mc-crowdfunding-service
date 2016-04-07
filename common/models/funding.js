@@ -339,10 +339,8 @@ module.exports = function(Funding) {
 					{
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
-							'获取热门众筹 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int',
-							', "fundingId":int, "brandName":"string"}, ',
-							'fundingStatus:众筹状态(-1-全部 0-预热 1-进行中 10-已结束), fundingType: 众筹类型(1-品牌 2-产品 3-权益),',
-							' fundingId:众筹编号, brandName: 品牌名称'
+							'获取热门众筹 {"userId":int, "pageId":int, "pageSize":int, "fundingType":int} ',
+							'fundingType: 众筹类型(1-品牌 2-产品 3-权益)'
 						]
 					}
 				],
