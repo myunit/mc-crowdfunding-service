@@ -476,8 +476,8 @@ module.exports = function(Funding) {
 
 			data.pageId = 0;
 			data.pageSize = 1;
-			data.fundingStatus = -1;
-			data.fundingType = -1;
+			data.fundingStatus = [0,1,10,11];
+			data.fundingType = [1,2,3];
 			fundingQueryIFS.getAllFunding(data, function (err, res) {
 				if (err) {
 					console.error('getAllFunding err: ' + err);
@@ -532,7 +532,7 @@ module.exports = function(Funding) {
 						var imgTypes = [0,1,2,3,4,5,6,7];
 						async.map(imgTypes, function(type, callback) {
 							imgQueryIFS.getImg({imgKey: item.SysNo, imgType: type}, function (err, res) {
-								if (!err && res.HasError !== 'true') {
+								if (!err && res.HasError !== 'true' && res.Body) {
 									callback(null, {type: type, ImgValue: res.Body.ShoppingImg.ImgValue});
 								} else {
 									callback(null, {SysNo: item.SysNo, ImgValue: ''});

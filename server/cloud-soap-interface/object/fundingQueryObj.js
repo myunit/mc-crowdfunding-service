@@ -7,6 +7,33 @@ var xml = require('xml');
 var utils = require('../../util/utils');
 
 exports.getAllFundingXML = function (obj) {
+
+	var status = [];
+	status.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+	var i = 0;
+	for (i = 0; i < obj.fundingStatus.length; i ++) {
+		status.push({'d6p1:int': obj.fundingStatus[i]});
+	}
+
+
+	var type = [];
+	type.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+
+	for (i = 0; i < obj.fundingType.length; i ++) {
+		type.push({'d6p1:int': obj.fundingType[i]});
+	}
+
+
 	var xmlObj = [{
 		GetAllCrowdFunding: [
 			{
@@ -114,10 +141,16 @@ exports.getAllFundingXML = function (obj) {
 								'd5p1:BrandName': obj.brandName || ''
 							},
 							{
-								'd5p1:CrowdFundingStatus': obj.fundingStatus
+								'd5p1:CrowdFundingStatus': -1
 							},
 							{
-								'd5p1:CrowdFundingType': obj.fundingType
+								'd5p1:CrowdFundingStatuss': status
+							},
+							{
+								'd5p1:CrowdFundingType': -1
+							},
+							{
+								'd5p1:CrowdFundingTypes': type
 							},
 							{
 								'd5p1:PublishStatus': 1
@@ -506,6 +539,26 @@ exports.getFundingOrderXML = function (obj) {
 };
 
 exports.getHotFundingXML = function (obj) {
+	var status = [];
+	status.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+
+	var type = [];
+	type.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+
+	for (var i = 0; i < obj.fundingType.length; i ++) {
+		type.push({'d6p1:int': obj.fundingType[i]});
+	}
+
 	var xmlObj = [{
 		GetAllHotCrowdFunding: [
 			{
@@ -613,10 +666,16 @@ exports.getHotFundingXML = function (obj) {
 								'd5p1:BrandName': obj.brandName || ''
 							},
 							{
-								'd5p1:CrowdFundingStatus': 1
+								'd5p1:CrowdFundingStatus': -1
 							},
 							{
-								'd5p1:CrowdFundingType': obj.fundingType
+								'd5p1:CrowdFundingStatuss': status
+							},
+							{
+								'd5p1:CrowdFundingType': -1
+							},
+							{
+								'd5p1:CrowdFundingTypes': type
 							},
 							{
 								'd5p1:PublishStatus': 1
