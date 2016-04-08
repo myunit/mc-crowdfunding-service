@@ -80,15 +80,9 @@ module.exports = function(Funding) {
 
 
 						item.CompletePercent = parseInt((item.HaveCrowdFundingCount/item.Quantity)*100);
-						if (!item.RemainDay || item.HaveCrowdFundingCount === item.Quantity) {
-							item.IsEnd = true;
-						} else {
-							item.IsEnd = false;
-						}
-
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
-							if (!err && res.HasError !== 'true') {
+							if (!err && res.HasError !== 'true' && res.Body) {
 								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
 							}
 						});
@@ -110,7 +104,7 @@ module.exports = function(Funding) {
 						description: [
 							'获取众筹 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int',
 							', "fundingId":int, "brandName":"string"}, ',
-							'fundingStatus:众筹状态(-1-全部 0-预热 1-进行中 10-已结束), fundingType: 众筹类型(1-品牌 2-产品 3-权益),',
+							'fundingStatus:众筹状态(-1-全部 0-预热 1-进行中 10-已成功 11-已失败), fundingType: 众筹类型(1-品牌权益 2-产品 3-单品权益),',
 							' fundingId:众筹编号, brandName: 品牌名称'
 						]
 					}
@@ -426,14 +420,9 @@ module.exports = function(Funding) {
 
 
 						item.CompletePercent = parseInt((item.HaveCrowdFundingCount/item.Quantity)*100);
-						if (!item.RemainDay || item.HaveCrowdFundingCount === item.Quantity) {
-							item.IsEnd = true;
-						} else {
-							item.IsEnd = false;
-						}
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
-							if (!err && res.HasError !== 'true') {
+							if (!err && res.HasError !== 'true' && res.Body) {
 								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
 							}
 						});
@@ -455,7 +444,7 @@ module.exports = function(Funding) {
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
 							'获取热门众筹 {"userId":int, "pageId":int, "pageSize":int, "fundingType":int} ',
-							'fundingType: 众筹类型(1-品牌 2-产品 3-权益)'
+							'fundingType: 众筹类型(1-品牌权益 2-产品 3-单品权益)'
 						]
 					}
 				],
@@ -525,11 +514,6 @@ module.exports = function(Funding) {
 
 
 						item.CompletePercent = parseInt((item.HaveCrowdFundingCount/item.Quantity)*100);
-						if (!item.RemainDay || item.HaveCrowdFundingCount === item.Quantity) {
-							item.IsEnd = true;
-						} else {
-							item.IsEnd = false;
-						}
 
 						var imgTypes = [0,1,2,3,4,5,6,7];
 						async.map(imgTypes, function(type, callback) {
