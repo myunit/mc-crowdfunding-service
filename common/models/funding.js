@@ -39,6 +39,10 @@ module.exports = function(Funding) {
 				} else {
 					var fundingList = [];
 					var count = parseInt(res.TotalCount);
+					if (count === 0) {
+						cb(null, {status: 1, count: count, funding: [], img: []});
+						return;
+					}
 
 					if (count === 1) {
 						fundingList.push(res.Body.CrowdFunding);
@@ -84,6 +88,8 @@ module.exports = function(Funding) {
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
 								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
+							} else {
+								callback(null, {SysNo: item.SysNo, ImgValue: ''});
 							}
 						});
 					}, function(err,results) {
@@ -381,11 +387,17 @@ module.exports = function(Funding) {
 					var fundingList = [];
 					var count = parseInt(res.TotalCount);
 
+					if (count === 0) {
+						cb(null, {status: 1, count: count, funding: [], img: []});
+						return;
+					}
+
 					if (count === 1) {
 						fundingList.push(res.Body.CrowdFunding);
 					} else if (count > 1){
 						fundingList = res.Body.CrowdFunding;
 					}
+
 					async.map(fundingList, function(item, callback) {
 						//console.log('item: ' + JSON.stringify(item));
 						item.MaxTargetPercent = parseFloat(item.MaxTargetPercent);
@@ -424,6 +436,8 @@ module.exports = function(Funding) {
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
 								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
+							} else {
+								callback(null, {SysNo: item.SysNo, ImgValue: ''});
 							}
 						});
 					}, function(err,results) {
@@ -520,6 +534,8 @@ module.exports = function(Funding) {
 							imgQueryIFS.getImg({imgKey: item.SysNo, imgType: type}, function (err, res) {
 								if (!err && res.HasError !== 'true') {
 									callback(null, {type: type, ImgValue: res.Body.ShoppingImg.ImgValue});
+								} else {
+									callback(null, {SysNo: item.SysNo, ImgValue: ''});
 								}
 							});
 						}, function(err,results) {

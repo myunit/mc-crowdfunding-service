@@ -613,7 +613,7 @@ exports.getHotFundingXML = function (obj) {
 								'd5p1:BrandName': obj.brandName || ''
 							},
 							{
-								'd5p1:CrowdFundingStatus': -1
+								'd5p1:CrowdFundingStatus': 1
 							},
 							{
 								'd5p1:CrowdFundingType': obj.fundingType
