@@ -177,7 +177,7 @@ module.exports = function(Funding) {
 
 				if (res.HasError === 'true') {
 					console.error('addFundingOrder result err: ' + res.Faults.MessageFault.ErrorDescription);
-					cb({status: 0, msg: '生成验证码失败'});
+					cb({status: 0, msg: '提交订单失败'});
 				} else {
 					cb(null, {status: 1, funding: res.Body});
 				}
@@ -202,6 +202,47 @@ module.exports = function(Funding) {
 			}
 		);
 
+		//取消众筹订单
+		Funding.cancelFundingOrder = function (data, cb) {
+			if (!data.orderId) {
+				cb(null, {status: 0, msg: '参数错误'});
+				return;
+			}
+
+			fundingIFS.cancelFundingOrder(data, function (err, res) {
+				if (err) {
+					console.error('cancelFundingOrder err: ' + err);
+					cb({status: 0, msg: '操作异常'});
+					return;
+				}
+
+				if (res.HasError === 'true') {
+					console.error('cancelFundingOrder result err: ' + res.Faults.MessageFault.ErrorDescription);
+					cb({status: 0, msg: '取消订单失败'});
+				} else {
+					cb(null, {status: 1, msg: ''});
+				}
+			});
+
+		};
+
+		Funding.remoteMethod(
+			'cancelFundingOrder',
+			{
+				description: ['取消众筹订单.返回结果-status:操作结果 0 成功 -1 失败, funding:众筹信息, msg:附带信息'],
+				accepts: [
+					{
+						arg: 'data', type: 'object', required: true, http: {source: 'body'},
+						description: [
+							'取消众筹订单 {"orderId":int}'
+						]
+					}
+				],
+				returns: {arg: 'repData', type: 'string'},
+				http: {path: '/cancel-funding-order', verb: 'post'}
+			}
+		);
+
 		//添加众筹预约
 		Funding.addFundingReserve = function (data, cb) {
 			if (!data.userId) {
@@ -212,15 +253,15 @@ module.exports = function(Funding) {
 			fundingIFS.addFundingReserve(data, function (err, res) {
 				if (err) {
 					console.error('addFundingReserve err: ' + err);
-					cb({status: 0, msg: '操作异常'});
+					cb(null, {status: 0, msg: '操作异常'});
 					return;
 				}
 
 				if (res.HasError === 'true') {
 					console.error('addFundingReserve result err: ' + res.Faults.MessageFault.ErrorDescription);
-					cb({status: 0, msg: '生成验证码失败'});
+					cb(null, {status: 0, msg: '预约失败'});
 				} else {
-					cb(null, {status: 1, funding: res.Body});
+					cb(null, {status: 1, msg: '预约成功'});
 				}
 			});
 
@@ -513,7 +554,7 @@ module.exports = function(Funding) {
 						item.WholesaleGrossProfit = parseFloat(item.WholesaleGrossProfit);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
-						item.UnitPercent = parseFloat((item.RemiseInterestRate/item.Quantity).toFixed(2));
+						item.UnitPercent = parseFloat((item.RemiseInterestRate/item.Quantity));
 						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);

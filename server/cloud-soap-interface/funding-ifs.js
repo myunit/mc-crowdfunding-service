@@ -20,7 +20,20 @@ FundingIFS.prototype.addFundingOrder = function (data, callback) {
 		try {
 			callback(err, response.AddCrowdFundingOrderResult);
 		} catch (e) {
-			console.error('FundingIFS setCaptcha Exception: ' + e);
+			console.error('FundingIFS addFundingOrder Exception: ' + e);
+			callback(err, {HasError: 'false', Faults:'服务异常'});
+		}
+	});
+};
+
+FundingIFS.prototype.cancelFundingOrder = function (data, callback) {
+	var Funding = this.DS.models.Funding;
+	var xml = fundingObj.cancelFundingOrderXML(data);
+	Funding.CancelCrowdFundingOrder(xml, function (err, response) {
+		try {
+			callback(err, response.CancelCrowdFundingOrderResult);
+		} catch (e) {
+			console.error('FundingIFS cancelFundingOrder Exception: ' + e);
 			callback(err, {HasError: 'false', Faults:'服务异常'});
 		}
 	});
