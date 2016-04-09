@@ -302,7 +302,67 @@ module.exports = function(Funding) {
 					console.error('getFundingReserve result err: ' + res.Faults.MessageFault.ErrorDescription);
 					cb({status: 0, msg: '生成验证码失败'});
 				} else {
-					cb(null, {status: 1, reserve: res.Body});
+					var fundingList = [];
+					var count = parseInt(res.TotalCount);
+
+					if (count === 0) {
+						cb(null, {status: 1, count: count, funding: [], img: []});
+						return;
+					}
+
+					if (count === 1) {
+						fundingList.push(res.Body.CrowdFundingReserve);
+					} else if (count > 1){
+						fundingList = res.Body.CrowdFundingReserve;
+					}
+
+					async.map(fundingList, function(item, callback) {
+						//console.log('item: ' + JSON.stringify(item));
+						delete item.Customer;
+						var funding = item.CrowdFunding;
+						funding.MaxTargetPercent = parseFloat(funding.MaxTargetPercent);
+						funding.MinBuyQuantity = parseInt(funding.MinBuyQuantity);
+						funding.PerCustomerLimit = parseInt(funding.PerCustomerLimit);
+						funding.PublishStatus = parseInt(funding.PublishStatus);
+						funding.CrowdFundingOrderCount = parseInt(funding.CrowdFundingOrderCount);
+						funding.CrowdFundingType = parseInt(funding.CrowdFundingType);
+						funding.CrowdFundingStatus = parseInt(funding.CrowdFundingStatus);
+						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
+						funding.Quantity = parseInt(funding.Quantity);
+						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
+						funding.HaveCrowdFundingAmount = parseFloat(funding.HaveCrowdFundingAmount);
+						funding.RemiseInterestRate = parseFloat(funding.RemiseInterestRate);
+						funding.SysNo = parseInt(funding.SysNo);
+						funding.TargetAmount = parseFloat(funding.TargetAmount);
+						funding.UnitPrice = parseFloat(funding.UnitPrice);
+						funding.WholesaleGrossProfit = parseFloat(funding.WholesaleGrossProfit);
+						funding.StartDate = funding.StartDate.replace('T', ' ');
+						funding.EndDate = funding.EndDate.replace('T', ' ');
+						var diff = (new Date()).getTime() - (new Date(funding.EndDate)).getTime();
+						if (diff > 0) {
+							diff = diff/(24*3600*1000);
+							if (diff < 1) {
+								funding.RemainDay = 1;
+							} else {
+								funding.RemainDay = Math.round(diff);
+							}
+						} else {
+							funding.RemainDay = 0;
+						}
+
+
+						funding.CompletePercent = parseInt((funding.HaveCrowdFundingCount/funding.Quantity)*100);
+
+						imgQueryIFS.getImg({imgKey: funding.SysNo, imgType: 0}, function (err, res) {
+							if (!err && res.HasError !== 'true' && res.Body) {
+								callback(null, {SysNo: funding.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
+							} else {
+								callback(null, {SysNo: funding.SysNo, ImgValue: ''});
+							}
+						});
+					}, function(err,results) {
+						cb(null, {status: 1, count: count, funding: fundingList, img: results});
+					});
 				}
 			});
 

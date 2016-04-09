@@ -383,13 +383,13 @@ exports.getFundingReserveXML = function (obj) {
 								}
 							},
 							{
-								'd5p1:CrowdFundingSysNo': obj.fundingId || 0
+								'd5p1:CrowdFundingSysNo': obj.fundingId || -1
 							},
 							{
 								'd5p1:CustomerNo': obj.userId
 							},
 							{
-								'd5p1:SysNo': obj.reserveId || 0
+								'd5p1:SysNo': obj.reserveId || -1
 							}
 						]
 					}
