@@ -456,6 +456,18 @@ module.exports = function(Funding) {
 						item.OrderStatus = parseInt(item.OrderStatus);
 						item.PaymentStatus = parseInt(item.PaymentStatus);
 						item.ReturnStatus = parseInt(item.ReturnStatus);
+						item.StatusTip = '';
+						if (item.OrderStatus === 11 &&item.ReturnStatus === 1) {
+							item.StatusTip = '已退款';
+						} else if (item.OrderStatus === 11 && item.ReturnStatus === 0) {
+							item.StatusTip = '已取消';
+						} else if (item.OrderStatus === 0 && item.PaymentStatus === 0) {
+							item.StatusTip = '待支付';
+						} else if (item.OrderStatus === 1 && item.PaymentStatus === 0) {
+							item.StatusTip = '审核中';
+						} else if (item.OrderStatus === 1 && item.PaymentStatus === 1) {
+							item.StatusTip = '已支付';
+						}
 						item.Quantity = parseInt(item.Quantity);
 						item.SysNo = parseInt(item.SysNo);
 						item.TotalAmount = toDecimal2(item.TotalAmount);
@@ -480,6 +492,7 @@ module.exports = function(Funding) {
 						funding.WholesaleGrossProfit = toDecimal2(funding.WholesaleGrossProfit);
 						funding.StartDate = funding.StartDate.replace('T', ' ');
 						funding.EndDate = funding.EndDate.replace('T', ' ');
+						funding.HaveCrowdFundingPercent = toDecimal4(toDecimal6((funding.RemiseInterestRate/funding.Quantity*funding.HaveCrowdFundingCount))*100);
 						var diff = (new Date()).getTime() - (new Date(funding.EndDate)).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);

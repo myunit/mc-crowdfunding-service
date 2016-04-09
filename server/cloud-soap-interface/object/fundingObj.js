@@ -76,6 +76,14 @@ exports.addFundingOrderXML = function (obj) {
 };
 
 exports.cancelFundingOrderXML = function (obj) {
+	var order = [];
+	order.push({
+		_attr: {
+			'xmlns:d4p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+	order.push({'d4p1:int': obj.orderId});
 	var xmlObj = [{
 		CancelCrowdFundingOrder: [
 			{
@@ -84,7 +92,7 @@ exports.cancelFundingOrderXML = function (obj) {
 				}
 			},
 			{
-				message:  [
+				messge:  [
 					{
 						_attr: {
 							'xmlns:d4p1': 'http://schemas.datacontract.org/2004/07/MYun.Framework.Service',
@@ -96,13 +104,7 @@ exports.cancelFundingOrderXML = function (obj) {
 							{
 								'd4p1:OperationUser': [
 									{
-										'd4p1:FullName': [
-											{
-												_attr: {
-													'i:nil': 'true'
-												}
-											}
-										]
+										'd4p1:FullName': 'mc'
 									},
 									{
 										'd4p1:UserSysNo': obj.userId
@@ -110,30 +112,14 @@ exports.cancelFundingOrderXML = function (obj) {
 								]
 							},
 							{
-								'd4p1:Sender': [
-									{
-										_attr: {
-											'i:nil': 'true'
-										}
-									}
-								]
+								'd4p1:Sender': 'mc'
 							}
 						]
 					}
 				]
 			},
 			{
-				data: [
-					{
-						_attr: {
-							'xmlns:d4p1': 'http://schemas.datacontract.org/2004/07/MYun.BPC.Contract.ShoppingMgmt.Data',
-							'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
-						}
-					},
-					{
-						'd4p1:CrowdFundingOrderSysNos': obj.orderId
-					}
-				]
+				CrowdFundingOrderSysNos: order
 			}
 		]
 	}];
