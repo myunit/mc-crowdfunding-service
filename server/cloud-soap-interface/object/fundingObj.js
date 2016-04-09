@@ -27,13 +27,7 @@ exports.addFundingOrderXML = function (obj) {
 							{
 								'd4p1:OperationUser': [
 									{
-										'd4p1:FullName': [
-											{
-												_attr: {
-													'i:nil': 'true'
-												}
-											}
-										]
+										'd4p1:FullName': 'mc'
 									},
 									{
 										'd4p1:UserSysNo': obj.userId

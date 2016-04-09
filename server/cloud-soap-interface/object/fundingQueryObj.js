@@ -403,6 +403,27 @@ exports.getFundingReserveXML = function (obj) {
 };
 
 exports.getFundingOrderXML = function (obj) {
+	var status = [];
+	status.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+	var i = 0;
+	for (i = 0; i < obj.fundingStatus.length; i ++) {
+		status.push({'d6p1:int': obj.fundingStatus[i]});
+	}
+
+
+	var type = [];
+	type.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+
 	var xmlObj = [{
 		GetAllCrowdFundingOrder: [
 			{
@@ -507,7 +528,31 @@ exports.getFundingOrderXML = function (obj) {
 								}
 							},
 							{
-								'd5p1:CrowdFundingSysNo': obj.fundingId || 0
+								'd5p1:BrandSysNo': 0
+							},
+							{
+								'd5p1:CrowdFundingName': [
+									{
+										_attr: {
+											'i:nil': 'true'
+										}
+									}
+								]
+							},
+							{
+								'd5p1:CrowdFundingStatus': -1
+							},
+							{
+								'd5p1:CrowdFundingStatuss': status
+							},
+							{
+								'd5p1:CrowdFundingSysNo': -1
+							},
+							{
+								'd5p1:CrowdFundingType': -1
+							},
+							{
+								'd5p1:CrowdFundingTypes': type
 							},
 							{
 								'd5p1:CustomerNo': obj.userId
@@ -525,7 +570,7 @@ exports.getFundingOrderXML = function (obj) {
 								'd5p1:ReturnStatus': -1
 							},
 							{
-								'd5p1:SysNo': obj.orderId || 0
+								'd5p1:SysNo': obj.orderId || -1
 							}
 						]
 					}

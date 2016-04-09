@@ -179,7 +179,8 @@ module.exports = function(Funding) {
 					console.error('addFundingOrder result err: ' + res.Faults.MessageFault.ErrorDescription);
 					cb({status: 0, msg: '提交订单失败'});
 				} else {
-					cb(null, {status: 1, funding: res.Body});
+					console.log('res: ' + JSON.stringify(res));
+					cb(null, {status: 1, orderId: parseInt(res.Body)});
 				}
 			});
 
