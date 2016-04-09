@@ -29,7 +29,6 @@ FundingIFS.prototype.addFundingOrder = function (data, callback) {
 FundingIFS.prototype.cancelFundingOrder = function (data, callback) {
 	var Funding = this.DS.models.Funding;
 	var xml = fundingObj.cancelFundingOrderXML(data);
-	console.log(xml);
 	Funding.CancelCrowdFundingOrder(xml, function (err, response) {
 		try {
 			callback(err, response.CancelCrowdFundingOrderResult);

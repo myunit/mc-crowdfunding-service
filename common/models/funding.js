@@ -557,9 +557,9 @@ module.exports = function(Funding) {
 
 				if (res.HasError === 'true') {
 					console.error('finishPayFunding result err: ' + res.Faults.MessageFault.ErrorDescription);
-					cb({status: 0, msg: '生成验证码失败'});
+					cb({status: 0, msg: '提交支付失败'});
 				} else {
-					cb(null, {status: 1, res: res.Body});
+					cb(null, {status: 1, msg: ''});
 				}
 			});
 
@@ -568,12 +568,12 @@ module.exports = function(Funding) {
 		Funding.remoteMethod(
 			'finishPayFunding',
 			{
-				description: ['获取众筹预约.返回结果-status:操作结果 0 成功 -1 失败, res:支付结果, msg:附带信息'],
+				description: ['完成支付.返回结果-status:操作结果 0 成功 -1 失败, res:支付结果, msg:附带信息'],
 				accepts: [
 					{
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
-							'获取众筹预约 {"userId":int, "fundingId":int}'
+							'完成支付 {"userId":int, "orderId":int}'
 						]
 					}
 				],

@@ -112,7 +112,13 @@ exports.cancelFundingOrderXML = function (obj) {
 								]
 							},
 							{
-								'd4p1:Sender': 'mc'
+								'd4p1:Sender': [
+									{
+										_attr: {
+											'i:nil': 'true'
+										}
+									}
+								]
 							}
 						]
 					}
@@ -211,13 +217,7 @@ exports.finishPayFundingXML = function (obj) {
 							{
 								'd4p1:OperationUser': [
 									{
-										'd4p1:FullName': [
-											{
-												_attr: {
-													'i:nil': 'true'
-												}
-											}
-										]
+										'd4p1:FullName': 'mc'
 									},
 									{
 										'd4p1:UserSysNo': obj.userId
