@@ -9,6 +9,39 @@ var FundingQueryIFS = require('../../server/cloud-soap-interface/fundingQuery-if
 var FundingIFS = require('../../server/cloud-soap-interface/funding-ifs');
 var ImgQueryIFS = require('../../server/cloud-soap-interface/imgQuery-ifs');
 
+function toDecimal2(x) {
+	var f = parseFloat(x);
+
+	if (isNaN(f)) {
+		return;
+	}
+
+	f = Math.round(x*100)/100;
+	return f;
+}
+
+function toDecimal6(x) {
+	var f = parseFloat(x);
+
+	if (isNaN(f)) {
+		return;
+	}
+
+	f = Math.round(x*1000000)/1000000;
+	return f;
+}
+
+function toDecimal4(x) {
+	var f = parseFloat(x);
+
+	if (isNaN(f)) {
+		return;
+	}
+
+	f = Math.round(x*10000)/10000;
+	return f;
+}
+
 module.exports = function(Funding) {
 	Funding.getApp(function (err, app) {
 		if (err) {
@@ -52,7 +85,7 @@ module.exports = function(Funding) {
 
 					async.map(fundingList, function(item, callback) {
 						//console.log('item: ' + JSON.stringify(item));
-						item.MaxTargetPercent = parseFloat(item.MaxTargetPercent);
+						item.MaxTargetPercent = toDecimal2(item.MaxTargetPercent);
 						item.MinBuyQuantity = parseInt(item.MinBuyQuantity);
 						item.PerCustomerLimit = parseInt(item.PerCustomerLimit);
 						item.PublishStatus = parseInt(item.PublishStatus);
@@ -62,12 +95,12 @@ module.exports = function(Funding) {
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
-						item.HaveCrowdFundingAmount = parseFloat(item.HaveCrowdFundingAmount);
-						item.RemiseInterestRate = parseFloat(item.RemiseInterestRate);
+						item.HaveCrowdFundingAmount = toDecimal2(item.HaveCrowdFundingAmount);
+						item.RemiseInterestRate = toDecimal2(item.RemiseInterestRate);
 						item.SysNo = parseInt(item.SysNo);
-						item.TargetAmount = parseFloat(item.TargetAmount);
-						item.UnitPrice = parseFloat(item.UnitPrice);
-						item.WholesaleGrossProfit = parseFloat(item.WholesaleGrossProfit);
+						item.TargetAmount = toDecimal2(item.TargetAmount);
+						item.UnitPrice = toDecimal2(item.UnitPrice);
+						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
 						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
@@ -171,15 +204,14 @@ module.exports = function(Funding) {
 			fundingIFS.addFundingOrder(data, function (err, res) {
 				if (err) {
 					console.error('addFundingOrder err: ' + err);
-					cb({status: 0, msg: '操作异常'});
+					cb(null, {status: 0, msg: '操作异常'});
 					return;
 				}
 
 				if (res.HasError === 'true') {
 					console.error('addFundingOrder result err: ' + res.Faults.MessageFault.ErrorDescription);
-					cb({status: 0, msg: '提交订单失败'});
+					cb(null, {status: 0, msg: '提交订单失败'});
 				} else {
-					console.log('res: ' + JSON.stringify(res));
 					cb(null, {status: 1, orderId: parseInt(res.Body)});
 				}
 			});
@@ -321,7 +353,7 @@ module.exports = function(Funding) {
 						//console.log('item: ' + JSON.stringify(item));
 						delete item.Customer;
 						var funding = item.CrowdFunding;
-						funding.MaxTargetPercent = parseFloat(funding.MaxTargetPercent);
+						funding.MaxTargetPercent = toDecimal2(funding.MaxTargetPercent);
 						funding.MinBuyQuantity = parseInt(funding.MinBuyQuantity);
 						funding.PerCustomerLimit = parseInt(funding.PerCustomerLimit);
 						funding.PublishStatus = parseInt(funding.PublishStatus);
@@ -331,12 +363,12 @@ module.exports = function(Funding) {
 						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
 						funding.Quantity = parseInt(funding.Quantity);
 						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
-						funding.HaveCrowdFundingAmount = parseFloat(funding.HaveCrowdFundingAmount);
-						funding.RemiseInterestRate = parseFloat(funding.RemiseInterestRate);
+						funding.HaveCrowdFundingAmount = toDecimal2(funding.HaveCrowdFundingAmount);
+						funding.RemiseInterestRate = toDecimal2(funding.RemiseInterestRate);
 						funding.SysNo = parseInt(funding.SysNo);
-						funding.TargetAmount = parseFloat(funding.TargetAmount);
-						funding.UnitPrice = parseFloat(funding.UnitPrice);
-						funding.WholesaleGrossProfit = parseFloat(funding.WholesaleGrossProfit);
+						funding.TargetAmount = toDecimal2(funding.TargetAmount);
+						funding.UnitPrice = toDecimal2(funding.UnitPrice);
+						funding.WholesaleGrossProfit = toDecimal2(funding.WholesaleGrossProfit);
 						funding.StartDate = funding.StartDate.replace('T', ' ');
 						funding.EndDate = funding.EndDate.replace('T', ' ');
 						var diff = (new Date()).getTime() - (new Date(funding.EndDate)).getTime();
@@ -404,7 +436,75 @@ module.exports = function(Funding) {
 					console.error('getFundingOrder result err: ' + res.Faults.MessageFault.ErrorDescription);
 					cb({status: 0, msg: '生成验证码失败'});
 				} else {
-					cb(null, {status: 1, orders: res.Body});
+					var fundingList = [];
+					var count = parseInt(res.TotalCount);
+
+					if (count === 0) {
+						cb(null, {status: 1, count: count, funding: [], img: []});
+						return;
+					}
+
+					if (count === 1) {
+						fundingList.push(res.Body.CrowdFundingOrder);
+					} else if (count > 1){
+						fundingList = res.Body.CrowdFundingOrder;
+					}
+
+					async.map(fundingList, function(item, callback) {
+						//console.log('item: ' + JSON.stringify(item));
+						delete item.Customer;
+						item.OrderStatus = parseInt(item.OrderStatus);
+						item.PaymentStatus = parseInt(item.PaymentStatus);
+						item.ReturnStatus = parseInt(item.ReturnStatus);
+						item.Quantity = parseInt(item.Quantity);
+						item.SysNo = parseInt(item.SysNo);
+						item.TotalAmount = toDecimal2(item.TotalAmount);
+						item.UnitPrice = toDecimal2(item.UnitPrice);
+						item.InDate = item.InDate.replace('T', ' ');
+						var funding = item.CrowdFunding;
+						funding.MaxTargetPercent = toDecimal2(funding.MaxTargetPercent);
+						funding.MinBuyQuantity = parseInt(funding.MinBuyQuantity);
+						funding.PerCustomerLimit = parseInt(funding.PerCustomerLimit);
+						funding.PublishStatus = parseInt(funding.PublishStatus);
+						funding.CrowdFundingOrderCount = parseInt(funding.CrowdFundingOrderCount);
+						funding.CrowdFundingType = parseInt(funding.CrowdFundingType);
+						funding.CrowdFundingStatus = parseInt(funding.CrowdFundingStatus);
+						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
+						funding.Quantity = parseInt(funding.Quantity);
+						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
+						funding.HaveCrowdFundingAmount = toDecimal2(funding.HaveCrowdFundingAmount);
+						funding.RemiseInterestRate = toDecimal2(funding.RemiseInterestRate);
+						funding.SysNo = parseInt(funding.SysNo);
+						funding.TargetAmount = toDecimal2(funding.TargetAmount);
+						funding.UnitPrice = toDecimal2(funding.UnitPrice);
+						funding.WholesaleGrossProfit = toDecimal2(funding.WholesaleGrossProfit);
+						funding.StartDate = funding.StartDate.replace('T', ' ');
+						funding.EndDate = funding.EndDate.replace('T', ' ');
+						var diff = (new Date()).getTime() - (new Date(funding.EndDate)).getTime();
+						if (diff > 0) {
+							diff = diff/(24*3600*1000);
+							if (diff < 1) {
+								funding.RemainDay = 1;
+							} else {
+								funding.RemainDay = Math.round(diff);
+							}
+						} else {
+							funding.RemainDay = 0;
+						}
+
+
+						funding.CompletePercent = parseInt((funding.HaveCrowdFundingCount/funding.Quantity)*100);
+
+						imgQueryIFS.getImg({imgKey: funding.SysNo, imgType: 0}, function (err, res) {
+							if (!err && res.HasError !== 'true' && res.Body) {
+								callback(null, {SysNo: funding.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
+							} else {
+								callback(null, {SysNo: funding.SysNo, ImgValue: ''});
+							}
+						});
+					}, function(err,results) {
+						cb(null, {status: 1, count: count, funding: fundingList, img: results});
+					});
 				}
 			});
 
@@ -418,7 +518,8 @@ module.exports = function(Funding) {
 					{
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
-							'获取众筹订单 {"userId":int, "pageId":int, "pageSize":int, "fundingId":int, "orderId":int}'
+							'获取众筹订单 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int,',
+							' "orderStatus":int, "payStatus":int, "returnStatus":int, "orderId":int}'
 						]
 					}
 				],
@@ -502,7 +603,7 @@ module.exports = function(Funding) {
 
 					async.map(fundingList, function(item, callback) {
 						//console.log('item: ' + JSON.stringify(item));
-						item.MaxTargetPercent = parseFloat(item.MaxTargetPercent);
+						item.MaxTargetPercent = toDecimal2(item.MaxTargetPercent);
 						item.MinBuyQuantity = parseInt(item.MinBuyQuantity);
 						item.PerCustomerLimit = parseInt(item.PerCustomerLimit);
 						item.PublishStatus = parseInt(item.PublishStatus);
@@ -512,12 +613,12 @@ module.exports = function(Funding) {
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
-						item.HaveCrowdFundingAmount = parseFloat(item.HaveCrowdFundingAmount);
-						item.RemiseInterestRate = parseFloat(item.RemiseInterestRate);
+						item.HaveCrowdFundingAmount = toDecimal2(item.HaveCrowdFundingAmount);
+						item.RemiseInterestRate = toDecimal2(item.RemiseInterestRate);
 						item.SysNo = parseInt(item.SysNo);
-						item.TargetAmount = parseFloat(item.TargetAmount);
-						item.UnitPrice = parseFloat(item.UnitPrice);
-						item.WholesaleGrossProfit = parseFloat(item.WholesaleGrossProfit);
+						item.TargetAmount = toDecimal2(item.TargetAmount);
+						item.UnitPrice = toDecimal2(item.UnitPrice);
+						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
 						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
@@ -597,7 +698,7 @@ module.exports = function(Funding) {
 					if (count === 1) {
 						item = res.Body.CrowdFunding;
 						//console.log('item: ' + JSON.stringify(item));
-						item.MaxTargetPercent = parseFloat(item.MaxTargetPercent);
+						item.MaxTargetPercent = toDecimal2(item.MaxTargetPercent);
 						item.MinBuyQuantity = parseInt(item.MinBuyQuantity);
 						item.PerCustomerLimit = parseInt(item.PerCustomerLimit);
 						item.PublishStatus = parseInt(item.PublishStatus);
@@ -607,15 +708,15 @@ module.exports = function(Funding) {
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
-						item.HaveCrowdFundingAmount = parseFloat(item.HaveCrowdFundingAmount);
-						item.RemiseInterestRate = parseFloat(item.RemiseInterestRate);
+						item.HaveCrowdFundingAmount = toDecimal2(item.HaveCrowdFundingAmount);
+						item.RemiseInterestRate = toDecimal2(item.RemiseInterestRate);
 						item.SysNo = parseInt(item.SysNo);
-						item.TargetAmount = parseFloat(item.TargetAmount);
-						item.UnitPrice = parseFloat(item.UnitPrice);
-						item.WholesaleGrossProfit = parseFloat(item.WholesaleGrossProfit);
+						item.TargetAmount = toDecimal2(item.TargetAmount);
+						item.UnitPrice = toDecimal2(item.UnitPrice);
+						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
-						item.UnitPercent = parseFloat((item.RemiseInterestRate/item.Quantity));
+						item.UnitPercent = toDecimal4(toDecimal6((item.RemiseInterestRate/item.Quantity))*100);
 						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);

@@ -424,6 +424,10 @@ exports.getFundingOrderXML = function (obj) {
 		}
 	});
 
+	for (i = 0; i < obj.fundingType.length; i ++) {
+		type.push({'d6p1:int': obj.fundingType[i]});
+	}
+
 	var xmlObj = [{
 		GetAllCrowdFundingOrder: [
 			{
@@ -558,16 +562,16 @@ exports.getFundingOrderXML = function (obj) {
 								'd5p1:CustomerNo': obj.userId
 							},
 							{
-								'd5p1:OrderStatus': -1
+								'd5p1:OrderStatus': obj.orderStatus
 							},
 							{
-								'd5p1:PaymentStatus': -1
+								'd5p1:PaymentStatus': obj.payStatus
 							},
 							{
 								'd5p1:PublishStatus': -1
 							},
 							{
-								'd5p1:ReturnStatus': -1
+								'd5p1:ReturnStatus': obj.returnStatus
 							},
 							{
 								'd5p1:SysNo': obj.orderId || -1
