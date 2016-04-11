@@ -857,9 +857,19 @@ module.exports = function(Funding) {
 						async.map(imgTypes, function(type, callback) {
 							imgQueryIFS.getImg({imgKey: item.SysNo, imgType: type}, function (err, res) {
 								if (!err && res.HasError !== 'true' && res.Body) {
-									callback(null, {type: type, ImgValue: res.Body.ShoppingImg.ImgValue});
+									var imgList = [];
+									if (Array.isArray(res.Body.ShoppingImg)) {
+										for (var i = 0; i < res.Body.ShoppingImg.length; i++) {
+											imgList.push(res.Body.ShoppingImg[i].ImgValue);
+										}
+
+									} else {
+										imgList.push(res.Body.ShoppingImg.ImgValue);
+									}
+
+									callback(null, {type: type, ImgValue: imgList});
 								} else {
-									callback(null, {SysNo: item.SysNo, ImgValue: ''});
+									callback(null, {type: type, ImgValue: []});
 								}
 							});
 						}, function(err,results) {
