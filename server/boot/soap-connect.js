@@ -38,4 +38,9 @@ module.exports = function (app) {
     console.log('ImgQuery interface is connected');
     app.datasources.ImgQuerySoap.createModel('ImgQuery', {});
   });
+
+  app.datasources.SupplierSoap.once('connected', function () {
+    console.log('Supplier interface is connected');
+    app.datasources.SupplierSoap.createModel('Supplier', {});
+  });
 };
