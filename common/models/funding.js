@@ -7,6 +7,7 @@ var loopback = require('loopback');
 var async = require('async');
 var FundingQueryIFS = require('../../server/cloud-soap-interface/fundingQuery-ifs');
 var FundingIFS = require('../../server/cloud-soap-interface/funding-ifs');
+var SupplierIFS = require('../../server/cloud-soap-interface/supplier-ifs');
 var ImgQueryIFS = require('../../server/cloud-soap-interface/imgQuery-ifs');
 
 function toDecimal2(x) {
@@ -51,6 +52,7 @@ module.exports = function(Funding) {
 		var fundingQueryIFS = new FundingQueryIFS(app);
 		var fundingIFS = new FundingIFS(app);
 		var imgQueryIFS = new ImgQueryIFS(app);
+		var supplierIFS = new SupplierIFS(app);
 
 		//获取众筹
 		Funding.getAllFunding = function (data, cb) {
@@ -116,7 +118,7 @@ module.exports = function(Funding) {
 						}
 
 
-						item.CompletePercent = parseInt((item.HaveCrowdFundingCount/item.Quantity)*100);
+						item.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -227,7 +229,7 @@ module.exports = function(Funding) {
 						}
 
 
-						funding.CompletePercent = parseInt((funding.HaveCrowdFundingCount/funding.Quantity)*100);
+						funding.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 8}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -451,7 +453,7 @@ module.exports = function(Funding) {
 						}
 
 
-						funding.CompletePercent = parseInt((funding.HaveCrowdFundingCount/funding.Quantity)*100);
+						funding.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: funding.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -573,7 +575,7 @@ module.exports = function(Funding) {
 						}
 
 
-						funding.CompletePercent = parseInt((funding.HaveCrowdFundingCount/funding.Quantity)*100);
+						funding.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: funding.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -609,26 +611,61 @@ module.exports = function(Funding) {
 		);
 
 		//完成支付
-		Funding.finishPayFunding = function (data, cb) {
+		Funding.finishPayFunding = function (data, callback) {
 			if (!data.userId) {
 				cb(null, {status: 0, msg: '参数错误'});
 				return;
 			}
 
-			fundingIFS.finishPayFunding(data, function (err, res) {
-				if (err) {
-					console.error('finishPayFunding err: ' + err);
-					cb({status: 0, msg: '操作异常'});
-					return;
-				}
+			async.waterfall(
+				[
+					function (cb) {
+						fundingIFS.finishPayFunding(data, function (err, res) {
+							if (err) {
+								console.error('finishPayFunding err: ' + err);
+								cb({status: 0, msg: '操作异常'});
+								return;
+							}
 
-				if (res.HasError === 'true') {
-					console.error('finishPayFunding result err: ' + res.Faults.MessageFault.ErrorDescription);
-					cb({status: 0, msg: '提交支付失败'});
-				} else {
-					cb(null, {status: 1, msg: ''});
+							if (res.HasError === 'true') {
+								console.error('finishPayFunding result err: ' + res.Faults.MessageFault.ErrorDescription);
+								cb({status: 0, msg: '提交支付失败'});
+							} else {
+								cb(null, {status: 1, msg: ''});
+							}
+						});
+					},
+					function (captcha, cb) {
+						var obj = {
+							userId: data.userId,
+							orderId: data.orderId,
+							imgType: 9,
+							imgUrl: data.imgUrl
+						};
+						supplierIFS.setShoppingImg(obj, function (err, res) {
+							if (err) {
+								console.error('setShoppingImg err: ' + err);
+								cb({status: 0, msg: '操作异常'});
+								return;
+							}
+
+							if (res.HasError === 'true') {
+								console.error('setShoppingImg result err: ' + res.Faults.MessageFault.ErrorDescription);
+								cb({status: 0, msg: '提交支付失败'});
+							} else {
+								cb(null, {status: 1, msg: ''});
+							}
+						});
+					}
+				],
+				function (err, msg) {
+					if (err) {
+						callback(null, err);
+					} else {
+						callback(null, msg);
+					}
 				}
-			});
+			);
 
 		};
 
@@ -640,7 +677,7 @@ module.exports = function(Funding) {
 					{
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
-							'完成支付 {"userId":int, "orderId":int}'
+							'完成支付 {"userId":int, "orderId":int, "imgUrl":"string"}'
 						]
 					}
 				],
@@ -714,7 +751,7 @@ module.exports = function(Funding) {
 						}
 
 
-						item.CompletePercent = parseInt((item.HaveCrowdFundingCount/item.Quantity)*100);
+						item.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -797,6 +834,7 @@ module.exports = function(Funding) {
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
 						item.UnitPercent = toDecimal4(toDecimal6((item.RemiseInterestRate/item.Quantity))*100);
+						item.HaveCrowdFundingPercent = toDecimal4(toDecimal6((item.RemiseInterestRate/item.Quantity*item.HaveCrowdFundingCount))*100);
 						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);
@@ -810,7 +848,7 @@ module.exports = function(Funding) {
 						}
 
 
-						item.CompletePercent = parseInt((item.HaveCrowdFundingCount/item.Quantity)*100);
+						item.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
 						var imgTypes = [0,1,2,3,4,5,6,7];
 						async.map(imgTypes, function(type, callback) {
