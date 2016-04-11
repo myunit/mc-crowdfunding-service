@@ -403,29 +403,39 @@ exports.getFundingReserveXML = function (obj) {
 };
 
 exports.getFundingOrderXML = function (obj) {
-	var status = [];
-	status.push({
+	var statusAry = [];
+	statusAry.push({
 		_attr: {
 			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
 			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
 		}
 	});
+	var typeAry = [];
+	typeAry.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+
+	var status = -1;
+	var type = -1;
 	var i = 0;
-	for (i = 0; i < obj.fundingStatus.length; i ++) {
-		status.push({'d6p1:int': obj.fundingStatus[i]});
+
+	if (Array.isArray(obj.fundingStatus)) {
+		for (i = 0; i < obj.fundingStatus.length; i ++) {
+			statusAry.push({'d6p1:int': obj.fundingStatus[i]});
+		}
+	} else {
+		status = obj.fundingStatus;
 	}
 
-
-	var type = [];
-	type.push({
-		_attr: {
-			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
-			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+	if (Array.isArray(obj.fundingType)) {
+		for (i = 0; i < obj.fundingType.length; i ++) {
+			typeAry.push({'d6p1:int': obj.fundingType[i]});
 		}
-	});
-
-	for (i = 0; i < obj.fundingType.length; i ++) {
-		type.push({'d6p1:int': obj.fundingType[i]});
+	} else {
+		type = obj.fundingType;
 	}
 
 	var xmlObj = [{
@@ -544,19 +554,19 @@ exports.getFundingOrderXML = function (obj) {
 								]
 							},
 							{
-								'd5p1:CrowdFundingStatus': -1
+								'd5p1:CrowdFundingStatus': status
 							},
 							{
-								'd5p1:CrowdFundingStatuss': status
+								'd5p1:CrowdFundingStatuss': statusAry
 							},
 							{
 								'd5p1:CrowdFundingSysNo': -1
 							},
 							{
-								'd5p1:CrowdFundingType': -1
+								'd5p1:CrowdFundingType': type
 							},
 							{
-								'd5p1:CrowdFundingTypes': type
+								'd5p1:CrowdFundingTypes': typeAry
 							},
 							{
 								'd5p1:CustomerNo': obj.userId
