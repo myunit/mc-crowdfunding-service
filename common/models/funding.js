@@ -106,7 +106,7 @@ module.exports = function(Funding) {
 						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
-						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
+						var diff = (new Date(item.EndDate)).getTime() - (new Date()).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);
 							if (diff < 1) {
@@ -280,7 +280,7 @@ module.exports = function(Funding) {
 
 				if (res.HasError === 'true') {
 					console.error('addFundingOrder result err: ' + res.Faults.MessageFault.ErrorDescription);
-					cb(null, {status: 0, msg: '提交订单失败'});
+					cb(null, {status: 0, msg: res.Faults.MessageFault.ErrorDescription.split('。')[1]});
 				} else {
 					cb(null, {status: 1, orderId: parseInt(res.Body)});
 				}
@@ -838,7 +838,7 @@ module.exports = function(Funding) {
 						item.EndDate = item.EndDate.replace('T', ' ');
 						item.UnitPercent = toDecimal4(toDecimal6((item.RemiseInterestRate/item.Quantity))*100);
 						item.HaveCrowdFundingPercent = toDecimal4(toDecimal6((item.RemiseInterestRate/item.Quantity*item.HaveCrowdFundingCount))*100);
-						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
+						var diff = (new Date(item.EndDate)).getTime() - (new Date()).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);
 							if (diff < 1) {

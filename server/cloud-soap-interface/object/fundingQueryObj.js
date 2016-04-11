@@ -578,7 +578,7 @@ exports.getFundingOrderXML = function (obj) {
 								'd5p1:PaymentStatus': obj.payStatus
 							},
 							{
-								'd5p1:PublishStatus': -1
+								'd5p1:PublishStatus': 1
 							},
 							{
 								'd5p1:ReturnStatus': obj.returnStatus
