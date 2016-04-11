@@ -79,10 +79,11 @@ module.exports = function(Funding) {
 						return;
 					}
 
-					if (count === 1) {
-						fundingList.push(res.Body.CrowdFunding);
-					} else if (count > 1){
+					if (Array.isArray(res.Body.CrowdFunding)) {
 						fundingList = res.Body.CrowdFunding;
+
+					} else {
+						fundingList.push(res.Body.CrowdFunding);
 					}
 
 					async.map(fundingList, function(item, callback) {
@@ -105,7 +106,7 @@ module.exports = function(Funding) {
 						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
-						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
+						var diff = (new Date(item.EndDate)).getTime() - (new Date()).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);
 							if (diff < 1) {
@@ -181,11 +182,11 @@ module.exports = function(Funding) {
 						return;
 					}
 
-
-					if (count === 1) {
-						fundingList.push(res.Body.CrowdFundingProgress);
-					} else if (count > 1){
+					if (Array.isArray(res.Body.CrowdFundingProgress)) {
 						fundingList = res.Body.CrowdFundingProgress;
+
+					} else {
+						fundingList.push(res.Body.CrowdFundingProgress);
 					}
 
 					var CrowdFundingType = 0;
@@ -279,7 +280,7 @@ module.exports = function(Funding) {
 
 				if (res.HasError === 'true') {
 					console.error('addFundingOrder result err: ' + res.Faults.MessageFault.ErrorDescription);
-					cb(null, {status: 0, msg: '提交订单失败'});
+					cb(null, {status: 0, msg: res.Faults.MessageFault.ErrorDescription.split('。')[1]});
 				} else {
 					cb(null, {status: 1, orderId: parseInt(res.Body)});
 				}
@@ -412,10 +413,11 @@ module.exports = function(Funding) {
 						return;
 					}
 
-					if (count === 1) {
-						fundingList.push(res.Body.CrowdFundingReserve);
-					} else if (count > 1){
+					if (Array.isArray(res.Body.CrowdFundingReserve)) {
 						fundingList = res.Body.CrowdFundingReserve;
+
+					} else {
+						fundingList.push(res.Body.CrowdFundingReserve);
 					}
 
 					async.map(fundingList, function(item, callback) {
@@ -513,10 +515,11 @@ module.exports = function(Funding) {
 						return;
 					}
 
-					if (count === 1) {
-						fundingList.push(res.Body.CrowdFundingOrder);
-					} else if (count > 1){
+					if (Array.isArray(res.Body.CrowdFundingOrder)) {
 						fundingList = res.Body.CrowdFundingOrder;
+
+					} else {
+						fundingList.push(res.Body.CrowdFundingOrder);
 					}
 
 					async.map(fundingList, function(item, callback) {
@@ -711,10 +714,11 @@ module.exports = function(Funding) {
 						return;
 					}
 
-					if (count === 1) {
-						fundingList.push(res.Body.CrowdFunding);
-					} else if (count > 1){
+					if (Array.isArray(res.Body.CrowdFunding)) {
 						fundingList = res.Body.CrowdFunding;
+
+					} else {
+						fundingList.push(res.Body.CrowdFunding);
 					}
 
 					async.map(fundingList, function(item, callback) {
@@ -834,7 +838,7 @@ module.exports = function(Funding) {
 						item.EndDate = item.EndDate.replace('T', ' ');
 						item.UnitPercent = toDecimal4(toDecimal6((item.RemiseInterestRate/item.Quantity))*100);
 						item.HaveCrowdFundingPercent = toDecimal4(toDecimal6((item.RemiseInterestRate/item.Quantity*item.HaveCrowdFundingCount))*100);
-						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
+						var diff = (new Date(item.EndDate)).getTime() - (new Date()).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);
 							if (diff < 1) {
@@ -853,9 +857,19 @@ module.exports = function(Funding) {
 						async.map(imgTypes, function(type, callback) {
 							imgQueryIFS.getImg({imgKey: item.SysNo, imgType: type}, function (err, res) {
 								if (!err && res.HasError !== 'true' && res.Body) {
-									callback(null, {type: type, ImgValue: res.Body.ShoppingImg.ImgValue});
+									var imgList = [];
+									if (Array.isArray(res.Body.ShoppingImg)) {
+										for (var i = 0; i < res.Body.ShoppingImg.length; i++) {
+											imgList.push(res.Body.ShoppingImg[i].ImgValue);
+										}
+
+									} else {
+										imgList.push(res.Body.ShoppingImg.ImgValue);
+									}
+
+									callback(null, {type: type, ImgValue: imgList});
 								} else {
-									callback(null, {SysNo: item.SysNo, ImgValue: ''});
+									callback(null, {type: type, ImgValue: []});
 								}
 							});
 						}, function(err,results) {
