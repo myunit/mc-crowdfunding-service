@@ -575,8 +575,7 @@ module.exports = function(Funding) {
 						}
 
 
-						funding.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
-
+						funding.CompletePercent = toDecimal2((funding.HaveCrowdFundingCount/funding.Quantity)*100);
 						imgQueryIFS.getImg({imgKey: funding.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
 								callback(null, {SysNo: funding.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
