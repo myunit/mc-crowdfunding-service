@@ -1,6 +1,7 @@
 var loopback = require('loopback');
 var async = require('async');
 var CustomerIFS = require('../../server/cloud-soap-interface/customer-ifs');
+var CustomerQueryIFS = require('../../server/cloud-soap-interface/customerQuery-ifs');
 var SmsIFS = require('../../server/cloud-soap-interface/sms-ifs');
 
 module.exports = function(Customer) {
@@ -10,17 +11,46 @@ module.exports = function(Customer) {
     }
     var app_self = app;
     var customerIFS = new CustomerIFS(app);
+    var customerQueryIFS = new CustomerQueryIFS(app);
     var smsIFS = new SmsIFS(app);
 
     //获取验证码
     Customer.sendCaptcha = function (data, callback) {
-      if (!data.phone) {
+      if (!data.phone || !data.type) {
         callback(null, {status: 0, msg: '参数错误'});
         return;
       }
 
       async.waterfall(
           [
+            function (cb) {
+              customerQueryIFS.isReg(data, function (err, res) {
+                if (err) {
+                  console.error('isReg err: ' + err);
+                  cb({status: 0, msg: '操作异常'});
+                  return;
+                }
+
+                if (res.HasError === 'true') {
+                  console.error('isReg result err: ' + res.Faults.MessageFault.ErrorDescription);
+                  cb({status: 0, msg: '生成验证码失败'});
+                } else {
+                  if (data.type === 1) {
+                    if (res.TotalCount > 0) {
+                      cb({status: 0, msg: '该手机已被注册'});
+                    } else {
+                      cb(null);
+                    }
+                  } else {
+                    if (res.TotalCount > 0) {
+                      cb(null);
+                    } else {
+                      cb({status: 0, msg: '该手机未注册, 请先注册'});
+                    }
+                  }
+                }
+              });
+            },
             function (cb) {
               customerIFS.setCaptcha(data, function (err, res) {
                 if (err) {
