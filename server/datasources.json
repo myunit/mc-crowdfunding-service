@@ -50,5 +50,11 @@
     "name": "SupplierSoap",
     "connector": "soap",
     "wsdl": "http://122.225.60.230:1187/Shopping/SupplierProductService.svc?WSDL"
+  },
+  "DistrictQuerySoap": {
+    "url": "http://122.225.60.230:11873/DistrictBrandService.svc",
+    "name": "DistrictQuerySoap",
+    "connector": "soap",
+    "wsdl": "http://122.225.60.230:11873/DistrictBrandService.svc/mex?WSDL"
   }
 }

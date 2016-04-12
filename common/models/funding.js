@@ -537,9 +537,9 @@ module.exports = function(Funding) {
 							item.StatusTip = '已取消';
 						} else if (item.OrderStatus === 0 && item.PaymentStatus === 0) {
 							item.StatusTip = '待支付';
-						} else if (item.OrderStatus === 1 && item.PaymentStatus === 0) {
-							item.StatusTip = '审核中';
 						} else if (item.OrderStatus === 1 && item.PaymentStatus === 1) {
+							item.StatusTip = '审核中';
+						} else if (item.OrderStatus === 2 && item.PaymentStatus === 1) {
 							item.StatusTip = '已支付';
 						}
 						item.Quantity = parseInt(item.Quantity);
@@ -743,7 +743,7 @@ module.exports = function(Funding) {
 						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
-						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
+						var diff = (new Date(item.EndDate)).getTime() - (new Date()).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);
 							if (diff < 1) {
