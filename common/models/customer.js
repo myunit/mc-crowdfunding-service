@@ -135,16 +135,20 @@ module.exports = function(Customer) {
                   return;
                 }
 
-                if (res.HasError === 'true' || !res.Body) {
+                if (res.HasError === 'true') {
                   console.error('login result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
                 } else {
-                  delete res.Body.Agent;
-                  delete res.Body.ActionLogs;
-                  delete res.Body.CustomerManager;
-                  delete res.Body.DeliveryConfiguration;
-                  delete res.Body.Sales;
-                  cb(null, {status: 1, customer: res.Body});
+                  if (!res.Body) {
+                    cb(null, {status: 0, msg: '用户名或密码错误'});
+                  } else {
+                    delete res.Body.Agent;
+                    delete res.Body.ActionLogs;
+                    delete res.Body.CustomerManager;
+                    delete res.Body.DeliveryConfiguration;
+                    delete res.Body.Sales;
+                    cb(null, {status: 1, customer: res.Body});
+                  }
                 }
               });
             }
