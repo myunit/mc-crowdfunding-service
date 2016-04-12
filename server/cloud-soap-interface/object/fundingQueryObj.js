@@ -153,6 +153,9 @@ exports.getAllFundingXML = function (obj) {
 								'd5p1:CrowdFundingTypes': type
 							},
 							{
+								'd5p1:DistrictBrandSysNo': obj.districtId || 0
+							},
+							{
 								'd5p1:PublishStatus': 1
 							},
 							{
