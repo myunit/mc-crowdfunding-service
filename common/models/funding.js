@@ -362,7 +362,7 @@ module.exports = function(Funding) {
 
 				if (res.HasError === 'true') {
 					console.error('addFundingReserve result err: ' + res.Faults.MessageFault.ErrorDescription);
-					cb(null, {status: 0, msg: '预约失败'});
+					cb(null, {status: 0, msg: (res.Faults.MessageFault.ErrorDescription.split('。')[0]).split(':')[1]});
 				} else {
 					cb(null, {status: 1, msg: '预约成功'});
 				}
