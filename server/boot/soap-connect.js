@@ -43,4 +43,9 @@ module.exports = function (app) {
     console.log('Supplier interface is connected');
     app.datasources.SupplierSoap.createModel('Supplier', {});
   });
+
+  app.datasources.DistrictQuerySoap.once('connected', function () {
+    console.log('DistrictQuery interface is connected');
+    app.datasources.DistrictQuerySoap.createModel('DistrictQuery', {});
+  });
 };

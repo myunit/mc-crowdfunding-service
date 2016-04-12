@@ -9,6 +9,7 @@ var FundingQueryIFS = require('../../server/cloud-soap-interface/fundingQuery-if
 var FundingIFS = require('../../server/cloud-soap-interface/funding-ifs');
 var SupplierIFS = require('../../server/cloud-soap-interface/supplier-ifs');
 var ImgQueryIFS = require('../../server/cloud-soap-interface/imgQuery-ifs');
+var DistrictIFS = require('../../server/cloud-soap-interface/district-ifs');
 
 function toDecimal2(x) {
 	var f = parseFloat(x);
@@ -53,6 +54,7 @@ module.exports = function(Funding) {
 		var fundingIFS = new FundingIFS(app);
 		var imgQueryIFS = new ImgQueryIFS(app);
 		var supplierIFS = new SupplierIFS(app);
+		var districtIFS = new DistrictIFS(app);
 
 		//获取众筹
 		Funding.getAllFunding = function (data, cb) {
@@ -853,7 +855,12 @@ module.exports = function(Funding) {
 
 						item.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
-						var imgTypes = [0,1,2,3,4,5,6,7];
+						var imgTypes = null;
+						if (item.CrowdFundingType === 2){
+							imgTypes = [0,1,2,3,5,7];
+						} else {
+							imgTypes = [0,1,2,3,4,5,6,7];
+						}
 						async.map(imgTypes, function(type, callback) {
 							imgQueryIFS.getImg({imgKey: item.SysNo, imgType: type}, function (err, res) {
 								if (!err && res.HasError !== 'true' && res.Body) {
@@ -897,6 +904,57 @@ module.exports = function(Funding) {
 				],
 				returns: {arg: 'repData', type: 'string'},
 				http: {path: '/get-funding-detail', verb: 'post'}
+			}
+		);
+
+		//获取品牌区域
+		Funding.getDistrict = function (data, cb) {
+			districtIFS.getDistrict(data, function (err, res) {
+				if (err) {
+					console.error('getDistrict err: ' + err);
+					cb({status: 0, msg: '操作异常'});
+					return;
+				}
+
+				if (res.HasError === 'true') {
+					console.error('getDistrict result err: ' + res.Faults.MessageFault.ErrorDescription);
+					cb({status: 0, msg: '获取品牌区域失败'});
+				} else {
+					var districtList = [];
+					var count = parseInt(res.TotalCount);
+
+					if (Array.isArray(res.Body.DistrictBrand)) {
+						async.map(res.Body.DistrictBrand, function(item, callback) {
+							districtList.push({districtId: parseInt(item.SysNo), districtName: item.DistrictBrandName.substring(0,2)});
+							callback(null);
+						}, function(err,results) {
+							cb(null, {status: 1, count: count, district: districtList});
+						});
+					} else {
+						districtList.push({districtId: parseInt(res.Body.DistrictBrand.SysNo), districtName: res.Body.DistrictBrand.DistrictBrandName.substring(0,2)});
+						cb(null, {status: 1, count: count, district: districtList});
+
+					}
+
+				}
+			});
+
+		};
+
+		Funding.remoteMethod(
+			'getDistrict',
+			{
+				description: ['获取品牌区域.返回结果-status:操作结果 0 成功 -1 失败, district:品牌区域, msg:附带信息'],
+				accepts: [
+					{
+						arg: 'data', type: 'object', required: true, http: {source: 'body'},
+						description: [
+							'获取品牌区域 {} '
+						]
+					}
+				],
+				returns: {arg: 'repData', type: 'string'},
+				http: {path: '/get-district', verb: 'post'}
 			}
 		);
 
