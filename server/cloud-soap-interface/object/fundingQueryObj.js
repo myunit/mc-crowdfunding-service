@@ -33,6 +33,17 @@ exports.getAllFundingXML = function (obj) {
 		type.push({'d6p1:int': obj.fundingType[i]});
 	}
 
+	var active = [];
+	active.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+
+	for (i = 0; i < obj.fundingActive.length; i ++) {
+		active.push({'d6p1:int': obj.fundingActive[i]});
+	}
 
 	var xmlObj = [{
 		GetAllCrowdFunding: [
@@ -136,6 +147,12 @@ exports.getAllFundingXML = function (obj) {
 								_attr: {
 									'xmlns:d5p1': 'http://schemas.datacontract.org/2004/07/MYun.BPC.Contract.QueryService.Data'
 								}
+							},
+							{
+								'd5p1:AcitveStatus': -1
+							},
+							{
+								'd5p1:AcitveStatuss': active
 							},
 							{
 								'd5p1:BrandName': obj.brandName || ''
@@ -545,6 +562,9 @@ exports.getFundingOrderXML = function (obj) {
 								}
 							},
 							{
+								'd5p1:AcitveStatus': obj.fundingActive
+							},
+							{
 								'd5p1:BrandSysNo': 0
 							},
 							{
@@ -603,6 +623,14 @@ exports.getFundingOrderXML = function (obj) {
 exports.getHotFundingXML = function (obj) {
 	var status = [];
 	status.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+
+	var active = [];
+	active.push({
 		_attr: {
 			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
 			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
@@ -723,6 +751,12 @@ exports.getHotFundingXML = function (obj) {
 								_attr: {
 									'xmlns:d5p1': 'http://schemas.datacontract.org/2004/07/MYun.BPC.Contract.QueryService.Data'
 								}
+							},
+							{
+								'd5p1:AcitveStatus': -1
+							},
+							{
+								'd5p1:AcitveStatuss': active
 							},
 							{
 								'd5p1:BrandName': obj.brandName || ''

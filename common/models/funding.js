@@ -97,6 +97,7 @@ module.exports = function(Funding) {
 						item.CrowdFundingOrderCount = parseInt(item.CrowdFundingOrderCount);
 						item.CrowdFundingType = parseInt(item.CrowdFundingType);
 						item.CrowdFundingStatus = parseInt(item.CrowdFundingStatus);
+						item.AcitveStatus = parseInt(item.AcitveStatus);
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
@@ -146,9 +147,10 @@ module.exports = function(Funding) {
 					{
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
-							'获取众筹 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int',
-							', "fundingId":int, "brandName":"string", "districtId":int}, ',
-							'fundingStatus:众筹状态(-1-全部 0-预热 1-进行中 10-已成功 11-已失败), fundingType: 众筹类型(1-品牌权益 2-产品 3-单品权益),',
+							'获取众筹 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int, ',
+							'"fundingActive":int, "fundingId":int, "brandName":"string", "districtId":int}, ',
+							'fundingStatus:众筹结果状态(-1-全部 0-待结果 10-已成功 11-已失败), fundingActive:众筹进度状态(-1-全部 0-预热 1-进行中 10-已结束), ',
+							'fundingType: 众筹类型(1-品牌权益 2-产品 3-单品权益),',
 							' fundingId:众筹编号, brandName: 品牌名称'
 						]
 					}
@@ -207,6 +209,7 @@ module.exports = function(Funding) {
 						funding.CrowdFundingType = parseInt(funding.CrowdFundingType);
 						CrowdFundingType = funding.CrowdFundingType;
 						funding.CrowdFundingStatus = parseInt(funding.CrowdFundingStatus);
+						funding.AcitveStatus = parseInt(funding.AcitveStatus);
 						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
 						funding.Quantity = parseInt(funding.Quantity);
 						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
@@ -433,6 +436,7 @@ module.exports = function(Funding) {
 						funding.CrowdFundingOrderCount = parseInt(funding.CrowdFundingOrderCount);
 						funding.CrowdFundingType = parseInt(funding.CrowdFundingType);
 						funding.CrowdFundingStatus = parseInt(funding.CrowdFundingStatus);
+						funding.AcitveStatus = parseInt(funding.AcitveStatus);
 						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
 						funding.Quantity = parseInt(funding.Quantity);
 						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
@@ -537,7 +541,7 @@ module.exports = function(Funding) {
 							item.StatusTip = '已取消';
 						} else if (item.OrderStatus === 0 && item.PaymentStatus === 0) {
 							item.StatusTip = '待支付';
-						} else if (item.OrderStatus === 1 && item.PaymentStatus === 1) {
+						} else if (item.OrderStatus === 1 && item.PaymentStatus === 0) {
 							item.StatusTip = '审核中';
 						} else if (item.OrderStatus === 2 && item.PaymentStatus === 1) {
 							item.StatusTip = '已支付';
@@ -555,6 +559,7 @@ module.exports = function(Funding) {
 						funding.CrowdFundingOrderCount = parseInt(funding.CrowdFundingOrderCount);
 						funding.CrowdFundingType = parseInt(funding.CrowdFundingType);
 						funding.CrowdFundingStatus = parseInt(funding.CrowdFundingStatus);
+						funding.AcitveStatus = parseInt(funding.AcitveStatus);
 						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
 						funding.Quantity = parseInt(funding.Quantity);
 						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
@@ -567,6 +572,7 @@ module.exports = function(Funding) {
 						funding.StartDate = funding.StartDate.replace('T', ' ');
 						funding.EndDate = funding.EndDate.replace('T', ' ');
 						funding.HaveCrowdFundingPercent = toDecimal4(toDecimal6((funding.RemiseInterestRate/funding.Quantity*funding.HaveCrowdFundingCount))*100);
+						item.BuyPercent = toDecimal4(toDecimal6((funding.RemiseInterestRate/funding.Quantity))*100*item.Quantity);
 						var diff = (new Date()).getTime() - (new Date(funding.EndDate)).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);
@@ -732,6 +738,7 @@ module.exports = function(Funding) {
 						item.CrowdFundingOrderCount = parseInt(item.CrowdFundingOrderCount);
 						item.CrowdFundingType = parseInt(item.CrowdFundingType);
 						item.CrowdFundingStatus = parseInt(item.CrowdFundingStatus);
+						item.AcitveStatus = parseInt(item.AcitveStatus);
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
@@ -803,6 +810,7 @@ module.exports = function(Funding) {
 			data.pageSize = 1;
 			data.fundingStatus = [0,1,10,11];
 			data.fundingType = [1,2,3];
+			data.fundingActive = [0,1,10];
 			fundingQueryIFS.getAllFunding(data, function (err, res) {
 				if (err) {
 					console.error('getAllFunding err: ' + err);
@@ -827,6 +835,7 @@ module.exports = function(Funding) {
 						item.CrowdFundingOrderCount = parseInt(item.CrowdFundingOrderCount);
 						item.CrowdFundingType = parseInt(item.CrowdFundingType);
 						item.CrowdFundingStatus = parseInt(item.CrowdFundingStatus);
+						item.AcitveStatus = parseInt(item.AcitveStatus);
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
