@@ -121,7 +121,7 @@ module.exports = function(Funding) {
 						}
 
 
-						item.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
+						item.CompletePercent = item.HaveCrowdFundingCount === item.Quantity ? 100:toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -232,7 +232,7 @@ module.exports = function(Funding) {
 						}
 
 
-						funding.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
+						funding.CompletePercent = funding.HaveCrowdFundingCount === funding.Quantity ? 100:toDecimal2((funding.HaveCrowdFundingCount/funding.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 8}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -457,7 +457,7 @@ module.exports = function(Funding) {
 						}
 
 
-						funding.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
+						funding.CompletePercent = funding.HaveCrowdFundingCount === funding.Quantity ? 100:toDecimal2((funding.HaveCrowdFundingCount/funding.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: funding.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -580,7 +580,7 @@ module.exports = function(Funding) {
 						}
 
 
-						funding.CompletePercent = toDecimal2((funding.HaveCrowdFundingCount/funding.Quantity)*100);
+						funding.CompletePercent = funding.HaveCrowdFundingCount === funding.Quantity ? 100:toDecimal2((funding.HaveCrowdFundingCount/funding.Quantity)*100);
 						imgQueryIFS.getImg({imgKey: funding.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
 								callback(null, {SysNo: funding.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
@@ -756,7 +756,7 @@ module.exports = function(Funding) {
 						}
 
 
-						item.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
+						item.CompletePercent = item.HaveCrowdFundingCount === item.Quantity ? 100:toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -853,7 +853,7 @@ module.exports = function(Funding) {
 						}
 
 
-						item.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
+						item.CompletePercent = item.HaveCrowdFundingCount === item.Quantity ? 100:toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
 						var imgTypes = null;
 						if (item.CrowdFundingType === 2){
