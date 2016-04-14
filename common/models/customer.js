@@ -1,6 +1,7 @@
 var loopback = require('loopback');
 var async = require('async');
 var CustomerIFS = require('../../server/cloud-soap-interface/customer-ifs');
+var CustomerMgIFS = require('../../server/cloud-soap-interface/customerMg-ifs');
 var CustomerQueryIFS = require('../../server/cloud-soap-interface/customerQuery-ifs');
 var SmsIFS = require('../../server/cloud-soap-interface/sms-ifs');
 
@@ -13,6 +14,7 @@ module.exports = function(Customer) {
     var customerIFS = new CustomerIFS(app);
     var customerQueryIFS = new CustomerQueryIFS(app);
     var smsIFS = new SmsIFS(app);
+    var customerMgIFS = new CustomerMgIFS(app);
 
     //获取验证码
     Customer.sendCaptcha = function (data, callback) {
@@ -319,6 +321,27 @@ module.exports = function(Customer) {
                   cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
                 } else {
                   cb(null, {status: 1, customer: res.Body});
+                }
+              });
+            },
+            function (msg, cb) {
+              var obj = {
+                userId: parseInt(msg.customer.CustomerNo),
+                groupId: data.groupId
+              };
+              console.log('obj: ' + JSON.stringify(obj));
+              customerMgIFS.setCustomerGroup(obj, function (err, res) {
+                if (err) {
+                  console.log('setCustomerGroup err: ' + err);
+                  cb({status:0, msg: '操作异常'});
+                  return;
+                }
+
+                if (res.HasError === 'true') {
+                  console.error('setCustomerGroup result err: ' + res.Faults.MessageFault.ErrorDescription);
+                  cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
+                } else {
+                  cb(null, msg);
                 }
               });
             }
