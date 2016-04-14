@@ -118,6 +118,61 @@ module.exports = function(Customer) {
       }
     );
 
+    //检查验证码
+    Customer.checkCaptcha = function (data, cb) {
+      if (!data.phone) {
+        callback(null, {status: 0, msg: '参数错误'});
+        return;
+      }
+
+      customerIFS.getCaptcha(data, function (err, res) {
+        if (err) {
+          console.error('getCaptcha err: ' + err);
+          cb(null, {status: 0, msg: '操作异常'});
+          return;
+        }
+
+        if (res.HasError === 'true' || !res.Body) {
+          console.error('getCaptcha result err: ' + res.Faults.MessageFault.ErrorDescription);
+          cb(null, {status: 0, msg: '校验激活码失败'});
+        } else {
+          var failureDate = res.Body.FailureDate.split('T');
+          failureDate = failureDate.join(' ');
+          failureDate = (new Date(failureDate)).getTime();
+          var now = (new Date()).getTime();
+          if (now > failureDate) {
+            cb(null, {status: 0, msg: '激活码已过期'});
+            return;
+          }
+
+          if (data.captcha !== res.Body.Captcha) {
+            cb(null, {status: 0, msg: '激活码错误'});
+            return;
+          }
+
+          cb(null, {status: 1, msg: ''});
+        }
+      });
+
+    };
+
+    Customer.remoteMethod(
+        'checkCaptcha',
+        {
+          description: ['检查验证码.返回结果-status:操作结果 0 成功 -1 失败, msg:附带信息'],
+          accepts: [
+            {
+              arg: 'data', type: 'object', required: true, http: {source: 'body'},
+              description: [
+                '检查验证码 {"phone":"string", "captcha":"string"}'
+              ]
+            }
+          ],
+          returns: {arg: 'repData', type: 'string'},
+          http: {path: '/check-captcha', verb: 'post'}
+        }
+    );
+
     //登录
     Customer.login = function (data, callback) {
       if (!data.phone) {
