@@ -496,7 +496,7 @@ module.exports = function(Funding) {
 					{
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
-							'获取众筹预约 {"userId":int, "pageId":int, "pageSize":int, "fundingId":int, "reserveId":int}'
+							'获取众筹预约 {"userId":int, "pageId":int, "pageSize":int, "publish":int, "fundingId":int, "reserveId":int}'
 						]
 					}
 				],

@@ -299,6 +299,18 @@ exports.getFundingProgressXML = function (obj) {
 };
 
 exports.getFundingReserveXML = function (obj) {
+	var publish = [];
+	publish.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+
+	for (var i = 0; i < obj.publish.length; i ++) {
+		publish.push({'d6p1:int': obj.publish[i]});
+	}
+
 	var xmlObj = [{
 		GetAllCrowdFundingReserve: [
 			{
@@ -407,6 +419,9 @@ exports.getFundingReserveXML = function (obj) {
 							},
 							{
 								'd5p1:CustomerNo': obj.userId
+							},
+							{
+								'd5p1:PublishStatuss': publish
 							},
 							{
 								'd5p1:SysNo': obj.reserveId || -1
