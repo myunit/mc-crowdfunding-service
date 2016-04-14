@@ -449,7 +449,7 @@ exports.registerXML = function (obj) {
 						]
 					},
 					{
-						'd4p1:IsEnable': false
+						'd4p1:IsEnable': true
 					},
 					{
 						'd4p1:LoginPassword': obj.password
