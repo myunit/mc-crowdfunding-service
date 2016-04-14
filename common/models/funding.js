@@ -239,9 +239,19 @@ module.exports = function(Funding) {
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 8}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
-								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
+								var imgList = [];
+								if (Array.isArray(res.Body.ShoppingImg)) {
+									for (var i = 0; i < res.Body.ShoppingImg.length; i++) {
+										imgList.push(res.Body.ShoppingImg[i].ImgValue);
+									}
+
+								} else {
+									imgList.push(res.Body.ShoppingImg.ImgValue);
+								}
+
+								callback(null, {SysNo: item.SysNo, ImgValue: imgList});
 							} else {
-								callback(null, {SysNo: item.SysNo, ImgValue: ''});
+								callback(null, {SysNo: item.SysNo, ImgValue: []});
 							}
 						});
 					}, function(err,results) {
