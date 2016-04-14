@@ -232,6 +232,7 @@ module.exports = function(Customer) {
                     delete res.Body.CustomerManager;
                     delete res.Body.DeliveryConfiguration;
                     delete res.Body.Sales;
+                    res.Body.IsAudit = res.Body.RegisterStatus === 'AuditPassed';
                     cb(null, {status: 1, customer: res.Body});
                   }
                 }
