@@ -21,6 +21,24 @@ function toDecimal2(x) {
 	f = Math.round(x*100)/100;
 	return f;
 }
+function toDecimalForce2(x) {
+	var f = parseFloat(x);
+	if (isNaN(f)) {
+		return;
+	}
+
+	f = Math.round(x*100)/100;
+	var s = f.toString();
+	var rs = s.indexOf('.');
+	if (rs < 0) {
+		rs = s.length;
+		s += '.';
+	}
+	while (s.length <= rs + 2) {
+		s += '0';
+	}
+	return s;
+}
 
 function toDecimal6(x) {
 	var f = parseFloat(x);
@@ -101,7 +119,7 @@ module.exports = function(Funding) {
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
-						item.HaveCrowdFundingAmount = toDecimal2(item.HaveCrowdFundingAmount);
+						item.HaveCrowdFundingAmount = toDecimalForce2(item.HaveCrowdFundingAmount);
 						item.RemiseInterestRate = toDecimal2(item.RemiseInterestRate);
 						item.SysNo = parseInt(item.SysNo);
 						item.TargetAmount = toDecimal2(item.TargetAmount);
@@ -213,7 +231,7 @@ module.exports = function(Funding) {
 						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
 						funding.Quantity = parseInt(funding.Quantity);
 						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
-						funding.HaveCrowdFundingAmount = toDecimal2(funding.HaveCrowdFundingAmount);
+						funding.HaveCrowdFundingAmount = toDecimalForce2(funding.HaveCrowdFundingAmount);
 						funding.RemiseInterestRate = toDecimal2(funding.RemiseInterestRate);
 						funding.SysNo = parseInt(funding.SysNo);
 						funding.TargetAmount = toDecimal2(funding.TargetAmount);
@@ -450,7 +468,7 @@ module.exports = function(Funding) {
 						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
 						funding.Quantity = parseInt(funding.Quantity);
 						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
-						funding.HaveCrowdFundingAmount = toDecimal2(funding.HaveCrowdFundingAmount);
+						funding.HaveCrowdFundingAmount = toDecimalForce2(funding.HaveCrowdFundingAmount);
 						funding.RemiseInterestRate = toDecimal2(funding.RemiseInterestRate);
 						funding.SysNo = parseInt(funding.SysNo);
 						funding.TargetAmount = toDecimal2(funding.TargetAmount);
@@ -573,7 +591,7 @@ module.exports = function(Funding) {
 						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
 						funding.Quantity = parseInt(funding.Quantity);
 						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
-						funding.HaveCrowdFundingAmount = toDecimal2(funding.HaveCrowdFundingAmount);
+						funding.HaveCrowdFundingAmount = toDecimalForce2(funding.HaveCrowdFundingAmount);
 						funding.RemiseInterestRate = toDecimal2(funding.RemiseInterestRate);
 						funding.SysNo = parseInt(funding.SysNo);
 						funding.TargetAmount = toDecimal2(funding.TargetAmount);
@@ -752,7 +770,7 @@ module.exports = function(Funding) {
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
-						item.HaveCrowdFundingAmount = toDecimal2(item.HaveCrowdFundingAmount);
+						item.HaveCrowdFundingAmount = toDecimalForce2(item.HaveCrowdFundingAmount);
 						item.RemiseInterestRate = toDecimal2(item.RemiseInterestRate);
 						item.SysNo = parseInt(item.SysNo);
 						item.TargetAmount = toDecimal2(item.TargetAmount);
@@ -849,7 +867,7 @@ module.exports = function(Funding) {
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
-						item.HaveCrowdFundingAmount = toDecimal2(item.HaveCrowdFundingAmount);
+						item.HaveCrowdFundingAmount = toDecimalForce2(item.HaveCrowdFundingAmount);
 						item.RemiseInterestRate = toDecimal2(item.RemiseInterestRate);
 						item.SysNo = parseInt(item.SysNo);
 						item.TargetAmount = toDecimal2(item.TargetAmount);
