@@ -183,6 +183,183 @@ exports.getAllFundingXML = function (obj) {
 	return xml(xmlObj, true);
 };
 
+exports.getFundingDetailXML = function (obj) {
+
+	var status = [];
+	status.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+	var i = 0;
+	for (i = 0; i < obj.fundingStatus.length; i ++) {
+		status.push({'d6p1:int': obj.fundingStatus[i]});
+	}
+
+
+	var type = [];
+	type.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+
+	for (i = 0; i < obj.fundingType.length; i ++) {
+		type.push({'d6p1:int': obj.fundingType[i]});
+	}
+
+	var active = [];
+	active.push({
+		_attr: {
+			'xmlns:d6p1': 'http://schemas.microsoft.com/2003/10/Serialization/Arrays',
+			'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+		}
+	});
+
+	for (i = 0; i < obj.fundingActive.length; i ++) {
+		active.push({'d6p1:int': obj.fundingActive[i]});
+	}
+
+	var xmlObj = [{
+		GetAllCrowdFunding: [
+			{
+				_attr: {
+					xmlns: 'http://tempuri.org/'
+				}
+			},
+			{
+				query: [
+					{
+						_attr: {
+							'xmlns:d4p1': 'http://schemas.datacontract.org/2004/07/MYun.Framework.Service',
+							'xmlns:i': 'http://www.w3.org/2001/XMLSchema-instance'
+						}
+					},
+					{
+						'd4p1:Header': [
+							{
+								'd4p1:AppKey': [
+									{
+										_attr: {
+											'i:nil': 'true'
+										}
+									}
+								]
+							},
+							{
+								'd4p1:OperationUser': [
+									{
+										'd4p1:FullName': [
+											{
+												_attr: {
+													'i:nil': 'true'
+												}
+											}
+										]
+									},
+									{
+										'd4p1:UserSysNo': obj.userId
+									}
+								]
+							},
+							{
+								'd4p1:Sender': [
+									{
+										_attr: {
+											'i:nil': 'true'
+										}
+									}
+								]
+							},
+							{
+								'd4p1:SessionKey': [
+									{
+										_attr: {
+											'i:nil': 'true'
+										}
+									}
+								]
+							},
+							{
+								'd4p1:Sign': [
+									{
+										_attr: {
+											'i:nil': 'true'
+										}
+									}
+								]
+							},
+							{
+								'd4p1:Timestamp': 0
+							}
+						]
+					},
+					{
+						'd4p1:PagingInfo': [
+							{
+								'd4p1:CurrentPage': obj.pageId
+							},
+							{
+								'd4p1:PageSize': obj.pageSize
+							},
+							{
+								'd4p1:SortType': 'startdate desc'
+							},
+							{
+								'd4p1:TotalCount': 0
+							}
+						]
+					},
+					{
+						'd4p1:Body': [
+							{
+								_attr: {
+									'xmlns:d5p1': 'http://schemas.datacontract.org/2004/07/MYun.BPC.Contract.QueryService.Data'
+								}
+							},
+							{
+								'd5p1:AcitveStatus': -1
+							},
+							{
+								'd5p1:AcitveStatuss': active
+							},
+							{
+								'd5p1:BrandName': obj.brandName || ''
+							},
+							{
+								'd5p1:CrowdFundingStatus': -1
+							},
+							{
+								'd5p1:CrowdFundingStatuss': status
+							},
+							{
+								'd5p1:CrowdFundingType': -1
+							},
+							{
+								'd5p1:CrowdFundingTypes': type
+							},
+							{
+								'd5p1:DistrictBrandSysNo': obj.districtId || 0
+							},
+							{
+								'd5p1:PublishStatus': -1
+							},
+							{
+								'd5p1:SysNo': obj.fundingId || 0
+							}
+						]
+					}
+
+				]
+			}
+		]
+	}];
+
+	return xml(xmlObj, true);
+};
+
 exports.getFundingProgressXML = function (obj) {
 	var xmlObj = [{
 		GetAllCrowdFundingProgress: [

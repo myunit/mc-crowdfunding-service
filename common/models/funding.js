@@ -840,7 +840,7 @@ module.exports = function(Funding) {
 			data.fundingStatus = [0,1,10,11];
 			data.fundingType = [1,2,3];
 			data.fundingActive = [0,1,10];
-			fundingQueryIFS.getAllFunding(data, function (err, res) {
+			fundingQueryIFS.getFundingDetail(data, function (err, res) {
 				if (err) {
 					console.error('getAllFunding err: ' + err);
 					cb({status: 0, msg: '操作异常'});
