@@ -128,13 +128,7 @@ exports.getAllFundingXML = function (obj) {
 								'd4p1:PageSize': obj.pageSize
 							},
 							{
-								'd4p1:SortType': [
-									{
-										_attr: {
-											'i:nil': 'true'
-										}
-									}
-								]
+								'd4p1:SortType': 'startdate desc'
 							},
 							{
 								'd4p1:TotalCount': 0
