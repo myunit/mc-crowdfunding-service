@@ -640,7 +640,7 @@ module.exports = function(Funding) {
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
 							'获取众筹订单 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int,',
-							' "orderStatus":int, "payStatus":int, "returnStatus":int, "orderId":int}'
+							' "fundingActive":int, "orderStatus":int, "payStatus":int, "returnStatus":int, "orderId":int}'
 						]
 					}
 				],
