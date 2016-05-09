@@ -26,6 +26,19 @@ FundingQueryIFS.prototype.getAllFunding = function (data, callback) {
 	});
 };
 
+FundingQueryIFS.prototype.getFundingDetail = function (data, callback) {
+	var FundingQuery = this.DS.models.FundingQuery;
+	var xml = fundingQueryObj.getFundingDetailXML(data);
+	FundingQuery.GetAllCrowdFunding(xml, function (err, response) {
+		try {
+			callback(err, response.GetAllCrowdFundingResult);
+		} catch (e) {
+			console.error('FundingQueryIFS getFundingDetail Exception: ' + e);
+			callback(err, {HasError: 'false', Faults:'服务异常'});
+		}
+	});
+};
+
 FundingQueryIFS.prototype.getFundingProgress = function (data, callback) {
 	var FundingQuery = this.DS.models.FundingQuery;
 	var xml = fundingQueryObj.getFundingProgressXML(data);

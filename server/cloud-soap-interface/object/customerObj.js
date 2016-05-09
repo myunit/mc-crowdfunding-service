@@ -449,7 +449,7 @@ exports.registerXML = function (obj) {
 						]
 					},
 					{
-						'd4p1:IsEnable': false
+						'd4p1:IsEnable': true
 					},
 					{
 						'd4p1:LoginPassword': obj.password
@@ -479,7 +479,7 @@ exports.registerXML = function (obj) {
 						'd4p1:QQNo': obj.qq
 					},
 					{
-						'd4p1:StoreName': obj.storeName
+						'd4p1:StoreName': obj.bossWeixin || obj.storeName
 					},
 					{
 						'd4p1:WangwangNo':  [

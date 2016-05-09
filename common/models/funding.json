@@ -73,6 +73,12 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "getFundingDetail"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "getDistrict"
     }
   ],
   "methods": {}

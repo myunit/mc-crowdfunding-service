@@ -9,6 +9,7 @@ var FundingQueryIFS = require('../../server/cloud-soap-interface/fundingQuery-if
 var FundingIFS = require('../../server/cloud-soap-interface/funding-ifs');
 var SupplierIFS = require('../../server/cloud-soap-interface/supplier-ifs');
 var ImgQueryIFS = require('../../server/cloud-soap-interface/imgQuery-ifs');
+var DistrictIFS = require('../../server/cloud-soap-interface/district-ifs');
 
 function toDecimal2(x) {
 	var f = parseFloat(x);
@@ -19,6 +20,24 @@ function toDecimal2(x) {
 
 	f = Math.round(x*100)/100;
 	return f;
+}
+function toDecimalForce2(x) {
+	var f = parseFloat(x);
+	if (isNaN(f)) {
+		return;
+	}
+
+	f = Math.round(x*100)/100;
+	var s = f.toString();
+	var rs = s.indexOf('.');
+	if (rs < 0) {
+		rs = s.length;
+		s += '.';
+	}
+	while (s.length <= rs + 2) {
+		s += '0';
+	}
+	return s;
 }
 
 function toDecimal6(x) {
@@ -53,6 +72,7 @@ module.exports = function(Funding) {
 		var fundingIFS = new FundingIFS(app);
 		var imgQueryIFS = new ImgQueryIFS(app);
 		var supplierIFS = new SupplierIFS(app);
+		var districtIFS = new DistrictIFS(app);
 
 		//获取众筹
 		Funding.getAllFunding = function (data, cb) {
@@ -95,15 +115,16 @@ module.exports = function(Funding) {
 						item.CrowdFundingOrderCount = parseInt(item.CrowdFundingOrderCount);
 						item.CrowdFundingType = parseInt(item.CrowdFundingType);
 						item.CrowdFundingStatus = parseInt(item.CrowdFundingStatus);
+						item.AcitveStatus = parseInt(item.AcitveStatus);
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
-						item.HaveCrowdFundingAmount = toDecimal2(item.HaveCrowdFundingAmount);
+						item.HaveCrowdFundingAmount = toDecimalForce2(item.HaveCrowdFundingAmount);
 						item.RemiseInterestRate = toDecimal2(item.RemiseInterestRate);
 						item.SysNo = parseInt(item.SysNo);
 						item.TargetAmount = toDecimal2(item.TargetAmount);
 						item.UnitPrice = toDecimal2(item.UnitPrice);
-						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit);
+						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit*100);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
 						var diff = (new Date(item.EndDate)).getTime() - (new Date()).getTime();
@@ -119,7 +140,7 @@ module.exports = function(Funding) {
 						}
 
 
-						item.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
+						item.CompletePercent = item.HaveCrowdFundingCount === item.Quantity ? 100:toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -144,9 +165,10 @@ module.exports = function(Funding) {
 					{
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
-							'获取众筹 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int',
-							', "fundingId":int, "brandName":"string"}, ',
-							'fundingStatus:众筹状态(-1-全部 0-预热 1-进行中 10-已成功 11-已失败), fundingType: 众筹类型(1-品牌权益 2-产品 3-单品权益),',
+							'获取众筹 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int, ',
+							'"fundingActive":int, "fundingId":int, "brandName":"string", "districtId":int}, ',
+							'fundingStatus:众筹结果状态(-1-全部 0-待结果 10-已成功 11-已失败), fundingActive:众筹进度状态(-1-全部 0-预热 1-进行中 10-已结束), ',
+							'fundingType: 众筹类型(1-品牌权益 2-产品 3-单品权益),',
 							' fundingId:众筹编号, brandName: 品牌名称'
 						]
 					}
@@ -205,15 +227,16 @@ module.exports = function(Funding) {
 						funding.CrowdFundingType = parseInt(funding.CrowdFundingType);
 						CrowdFundingType = funding.CrowdFundingType;
 						funding.CrowdFundingStatus = parseInt(funding.CrowdFundingStatus);
+						funding.AcitveStatus = parseInt(funding.AcitveStatus);
 						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
 						funding.Quantity = parseInt(funding.Quantity);
 						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
-						funding.HaveCrowdFundingAmount = toDecimal2(funding.HaveCrowdFundingAmount);
+						funding.HaveCrowdFundingAmount = toDecimalForce2(funding.HaveCrowdFundingAmount);
 						funding.RemiseInterestRate = toDecimal2(funding.RemiseInterestRate);
 						funding.SysNo = parseInt(funding.SysNo);
 						funding.TargetAmount = toDecimal2(funding.TargetAmount);
 						funding.UnitPrice = toDecimal2(funding.UnitPrice);
-						funding.WholesaleGrossProfit = toDecimal2(funding.WholesaleGrossProfit);
+						funding.WholesaleGrossProfit = toDecimal2(funding.WholesaleGrossProfit*100);
 						funding.StartDate = funding.StartDate.replace('T', ' ');
 						funding.EndDate = funding.EndDate.replace('T', ' ');
 						funding.HaveCrowdFundingPercent = toDecimal4(toDecimal6((funding.RemiseInterestRate/funding.Quantity*funding.HaveCrowdFundingCount))*100);
@@ -230,13 +253,23 @@ module.exports = function(Funding) {
 						}
 
 
-						funding.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
+						funding.CompletePercent = funding.HaveCrowdFundingCount === funding.Quantity ? 100:toDecimal2((funding.HaveCrowdFundingCount/funding.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 8}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
-								callback(null, {SysNo: item.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
+								var imgList = [];
+								if (Array.isArray(res.Body.ShoppingImg)) {
+									for (var i = 0; i < res.Body.ShoppingImg.length; i++) {
+										imgList.push(res.Body.ShoppingImg[i].ImgValue);
+									}
+
+								} else {
+									imgList.push(res.Body.ShoppingImg.ImgValue);
+								}
+
+								callback(null, {SysNo: item.SysNo, ImgValue: imgList});
 							} else {
-								callback(null, {SysNo: item.SysNo, ImgValue: ''});
+								callback(null, {SysNo: item.SysNo, ImgValue: []});
 							}
 						});
 					}, function(err,results) {
@@ -362,7 +395,7 @@ module.exports = function(Funding) {
 
 				if (res.HasError === 'true') {
 					console.error('addFundingReserve result err: ' + res.Faults.MessageFault.ErrorDescription);
-					cb(null, {status: 0, msg: '预约失败'});
+					cb(null, {status: 0, msg: (res.Faults.MessageFault.ErrorDescription.split('。')[0]).split(':')[1]});
 				} else {
 					cb(null, {status: 1, msg: '预约成功'});
 				}
@@ -431,15 +464,16 @@ module.exports = function(Funding) {
 						funding.CrowdFundingOrderCount = parseInt(funding.CrowdFundingOrderCount);
 						funding.CrowdFundingType = parseInt(funding.CrowdFundingType);
 						funding.CrowdFundingStatus = parseInt(funding.CrowdFundingStatus);
+						funding.AcitveStatus = parseInt(funding.AcitveStatus);
 						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
 						funding.Quantity = parseInt(funding.Quantity);
 						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
-						funding.HaveCrowdFundingAmount = toDecimal2(funding.HaveCrowdFundingAmount);
+						funding.HaveCrowdFundingAmount = toDecimalForce2(funding.HaveCrowdFundingAmount);
 						funding.RemiseInterestRate = toDecimal2(funding.RemiseInterestRate);
 						funding.SysNo = parseInt(funding.SysNo);
 						funding.TargetAmount = toDecimal2(funding.TargetAmount);
 						funding.UnitPrice = toDecimal2(funding.UnitPrice);
-						funding.WholesaleGrossProfit = toDecimal2(funding.WholesaleGrossProfit);
+						funding.WholesaleGrossProfit = toDecimal2(funding.WholesaleGrossProfit*100);
 						funding.StartDate = funding.StartDate.replace('T', ' ');
 						funding.EndDate = funding.EndDate.replace('T', ' ');
 						var diff = (new Date()).getTime() - (new Date(funding.EndDate)).getTime();
@@ -455,7 +489,7 @@ module.exports = function(Funding) {
 						}
 
 
-						funding.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
+						funding.CompletePercent = funding.HaveCrowdFundingCount === funding.Quantity ? 100:toDecimal2((funding.HaveCrowdFundingCount/funding.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: funding.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -480,7 +514,7 @@ module.exports = function(Funding) {
 					{
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
-							'获取众筹预约 {"userId":int, "pageId":int, "pageSize":int, "fundingId":int, "reserveId":int}'
+							'获取众筹预约 {"userId":int, "pageId":int, "pageSize":int, "publish":int, "fundingId":int, "reserveId":int}'
 						]
 					}
 				],
@@ -529,17 +563,18 @@ module.exports = function(Funding) {
 						item.PaymentStatus = parseInt(item.PaymentStatus);
 						item.ReturnStatus = parseInt(item.ReturnStatus);
 						item.StatusTip = '';
-						if (item.OrderStatus === 11 &&item.ReturnStatus === 1) {
+						if (item.ReturnStatus === 1) {
 							item.StatusTip = '已退款';
 						} else if (item.OrderStatus === 11 && item.ReturnStatus === 0) {
 							item.StatusTip = '已取消';
-						} else if (item.OrderStatus === 0 && item.PaymentStatus === 0) {
-							item.StatusTip = '待支付';
-						} else if (item.OrderStatus === 1 && item.PaymentStatus === 0) {
-							item.StatusTip = '审核中';
-						} else if (item.OrderStatus === 1 && item.PaymentStatus === 1) {
+						}  else if (item.PaymentStatus === 1) {
 							item.StatusTip = '已支付';
+						} else if (item.OrderStatus === 0) {
+							item.StatusTip = '待支付';
+						} else if (item.OrderStatus === 1) {
+							item.StatusTip = '审核中';
 						}
+
 						item.Quantity = parseInt(item.Quantity);
 						item.SysNo = parseInt(item.SysNo);
 						item.TotalAmount = toDecimal2(item.TotalAmount);
@@ -553,18 +588,20 @@ module.exports = function(Funding) {
 						funding.CrowdFundingOrderCount = parseInt(funding.CrowdFundingOrderCount);
 						funding.CrowdFundingType = parseInt(funding.CrowdFundingType);
 						funding.CrowdFundingStatus = parseInt(funding.CrowdFundingStatus);
+						funding.AcitveStatus = parseInt(funding.AcitveStatus);
 						funding.CrowdFundingReserveCount = parseInt(funding.CrowdFundingReserveCount);
 						funding.Quantity = parseInt(funding.Quantity);
 						funding.HaveCrowdFundingCount = parseInt(funding.HaveCrowdFundingCount);
-						funding.HaveCrowdFundingAmount = toDecimal2(funding.HaveCrowdFundingAmount);
+						funding.HaveCrowdFundingAmount = toDecimalForce2(funding.HaveCrowdFundingAmount);
 						funding.RemiseInterestRate = toDecimal2(funding.RemiseInterestRate);
 						funding.SysNo = parseInt(funding.SysNo);
 						funding.TargetAmount = toDecimal2(funding.TargetAmount);
 						funding.UnitPrice = toDecimal2(funding.UnitPrice);
-						funding.WholesaleGrossProfit = toDecimal2(funding.WholesaleGrossProfit);
+						funding.WholesaleGrossProfit = toDecimal2(funding.WholesaleGrossProfit*100);
 						funding.StartDate = funding.StartDate.replace('T', ' ');
 						funding.EndDate = funding.EndDate.replace('T', ' ');
 						funding.HaveCrowdFundingPercent = toDecimal4(toDecimal6((funding.RemiseInterestRate/funding.Quantity*funding.HaveCrowdFundingCount))*100);
+						item.BuyPercent = toDecimal4(toDecimal6((funding.RemiseInterestRate/funding.Quantity))*100*item.Quantity);
 						var diff = (new Date()).getTime() - (new Date(funding.EndDate)).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);
@@ -578,7 +615,7 @@ module.exports = function(Funding) {
 						}
 
 
-						funding.CompletePercent = toDecimal2((funding.HaveCrowdFundingCount/funding.Quantity)*100);
+						funding.CompletePercent = funding.HaveCrowdFundingCount === funding.Quantity ? 100:toDecimal2((funding.HaveCrowdFundingCount/funding.Quantity)*100);
 						imgQueryIFS.getImg({imgKey: funding.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
 								callback(null, {SysNo: funding.SysNo, ImgValue: res.Body.ShoppingImg.ImgValue});
@@ -603,7 +640,7 @@ module.exports = function(Funding) {
 						arg: 'data', type: 'object', required: true, http: {source: 'body'},
 						description: [
 							'获取众筹订单 {"userId":int, "pageId":int, "pageSize":int, "fundingStatus":int, "fundingType":int,',
-							' "orderStatus":int, "payStatus":int, "returnStatus":int, "orderId":int}'
+							' "fundingActive":int, "orderStatus":int, "payStatus":int, "returnStatus":int, "orderId":int}'
 						]
 					}
 				],
@@ -730,18 +767,19 @@ module.exports = function(Funding) {
 						item.CrowdFundingOrderCount = parseInt(item.CrowdFundingOrderCount);
 						item.CrowdFundingType = parseInt(item.CrowdFundingType);
 						item.CrowdFundingStatus = parseInt(item.CrowdFundingStatus);
+						item.AcitveStatus = parseInt(item.AcitveStatus);
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
-						item.HaveCrowdFundingAmount = toDecimal2(item.HaveCrowdFundingAmount);
+						item.HaveCrowdFundingAmount = toDecimalForce2(item.HaveCrowdFundingAmount);
 						item.RemiseInterestRate = toDecimal2(item.RemiseInterestRate);
 						item.SysNo = parseInt(item.SysNo);
 						item.TargetAmount = toDecimal2(item.TargetAmount);
 						item.UnitPrice = toDecimal2(item.UnitPrice);
-						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit);
+						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit*100);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
-						var diff = (new Date()).getTime() - (new Date(item.EndDate)).getTime();
+						var diff = (new Date(item.EndDate)).getTime() - (new Date()).getTime();
 						if (diff > 0) {
 							diff = diff/(24*3600*1000);
 							if (diff < 1) {
@@ -754,7 +792,7 @@ module.exports = function(Funding) {
 						}
 
 
-						item.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
+						item.CompletePercent = item.HaveCrowdFundingCount === item.Quantity ? 100:toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
 						imgQueryIFS.getImg({imgKey: item.SysNo, imgType: 0}, function (err, res) {
 							if (!err && res.HasError !== 'true' && res.Body) {
@@ -801,7 +839,8 @@ module.exports = function(Funding) {
 			data.pageSize = 1;
 			data.fundingStatus = [0,1,10,11];
 			data.fundingType = [1,2,3];
-			fundingQueryIFS.getAllFunding(data, function (err, res) {
+			data.fundingActive = [0,1,10];
+			fundingQueryIFS.getFundingDetail(data, function (err, res) {
 				if (err) {
 					console.error('getAllFunding err: ' + err);
 					cb({status: 0, msg: '操作异常'});
@@ -825,15 +864,16 @@ module.exports = function(Funding) {
 						item.CrowdFundingOrderCount = parseInt(item.CrowdFundingOrderCount);
 						item.CrowdFundingType = parseInt(item.CrowdFundingType);
 						item.CrowdFundingStatus = parseInt(item.CrowdFundingStatus);
+						item.AcitveStatus = parseInt(item.AcitveStatus);
 						item.CrowdFundingReserveCount = parseInt(item.CrowdFundingReserveCount);
 						item.Quantity = parseInt(item.Quantity);
 						item.HaveCrowdFundingCount = parseInt(item.HaveCrowdFundingCount);
-						item.HaveCrowdFundingAmount = toDecimal2(item.HaveCrowdFundingAmount);
+						item.HaveCrowdFundingAmount = toDecimalForce2(item.HaveCrowdFundingAmount);
 						item.RemiseInterestRate = toDecimal2(item.RemiseInterestRate);
 						item.SysNo = parseInt(item.SysNo);
 						item.TargetAmount = toDecimal2(item.TargetAmount);
 						item.UnitPrice = toDecimal2(item.UnitPrice);
-						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit);
+						item.WholesaleGrossProfit = toDecimal2(item.WholesaleGrossProfit*100);
 						item.StartDate = item.StartDate.replace('T', ' ');
 						item.EndDate = item.EndDate.replace('T', ' ');
 						item.UnitPercent = toDecimal4(toDecimal6((item.RemiseInterestRate/item.Quantity))*100);
@@ -851,9 +891,14 @@ module.exports = function(Funding) {
 						}
 
 
-						item.CompletePercent = toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
+						item.CompletePercent = item.HaveCrowdFundingCount === item.Quantity ? 100:toDecimal2((item.HaveCrowdFundingCount/item.Quantity)*100);
 
-						var imgTypes = [0,1,2,3,4,5,6,7];
+						var imgTypes = null;
+						if (item.CrowdFundingType === 2){
+							imgTypes = [0,1,2,3,5,7];
+						} else {
+							imgTypes = [0,1,2,3,4,5,6,7];
+						}
 						async.map(imgTypes, function(type, callback) {
 							imgQueryIFS.getImg({imgKey: item.SysNo, imgType: type}, function (err, res) {
 								if (!err && res.HasError !== 'true' && res.Body) {
@@ -897,6 +942,57 @@ module.exports = function(Funding) {
 				],
 				returns: {arg: 'repData', type: 'string'},
 				http: {path: '/get-funding-detail', verb: 'post'}
+			}
+		);
+
+		//获取品牌区域
+		Funding.getDistrict = function (data, cb) {
+			districtIFS.getDistrict(data, function (err, res) {
+				if (err) {
+					console.error('getDistrict err: ' + err);
+					cb({status: 0, msg: '操作异常'});
+					return;
+				}
+
+				if (res.HasError === 'true') {
+					console.error('getDistrict result err: ' + res.Faults.MessageFault.ErrorDescription);
+					cb({status: 0, msg: '获取品牌区域失败'});
+				} else {
+					var districtList = [];
+					var count = parseInt(res.TotalCount);
+
+					if (Array.isArray(res.Body.DistrictBrand)) {
+						async.map(res.Body.DistrictBrand, function(item, callback) {
+							districtList.push({districtId: parseInt(item.SysNo), districtName: item.DistrictBrandName.substring(0,2)});
+							callback(null);
+						}, function(err,results) {
+							cb(null, {status: 1, count: count, district: districtList});
+						});
+					} else {
+						districtList.push({districtId: parseInt(res.Body.DistrictBrand.SysNo), districtName: res.Body.DistrictBrand.DistrictBrandName.substring(0,2)});
+						cb(null, {status: 1, count: count, district: districtList});
+
+					}
+
+				}
+			});
+
+		};
+
+		Funding.remoteMethod(
+			'getDistrict',
+			{
+				description: ['获取品牌区域.返回结果-status:操作结果 0 成功 -1 失败, district:品牌区域, msg:附带信息'],
+				accepts: [
+					{
+						arg: 'data', type: 'object', required: true, http: {source: 'body'},
+						description: [
+							'获取品牌区域 {} '
+						]
+					}
+				],
+				returns: {arg: 'repData', type: 'string'},
+				http: {path: '/get-district', verb: 'post'}
 			}
 		);
 

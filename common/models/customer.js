@@ -1,6 +1,8 @@
 var loopback = require('loopback');
 var async = require('async');
 var CustomerIFS = require('../../server/cloud-soap-interface/customer-ifs');
+var CustomerMgIFS = require('../../server/cloud-soap-interface/customerMg-ifs');
+var CustomerQueryIFS = require('../../server/cloud-soap-interface/customerQuery-ifs');
 var SmsIFS = require('../../server/cloud-soap-interface/sms-ifs');
 
 module.exports = function(Customer) {
@@ -10,17 +12,47 @@ module.exports = function(Customer) {
     }
     var app_self = app;
     var customerIFS = new CustomerIFS(app);
+    var customerQueryIFS = new CustomerQueryIFS(app);
     var smsIFS = new SmsIFS(app);
+    var customerMgIFS = new CustomerMgIFS(app);
 
     //获取验证码
     Customer.sendCaptcha = function (data, callback) {
-      if (!data.phone) {
+      if (!data.phone || !data.type) {
         callback(null, {status: 0, msg: '参数错误'});
         return;
       }
 
       async.waterfall(
           [
+            function (cb) {
+              customerQueryIFS.isReg(data, function (err, res) {
+                if (err) {
+                  console.error('isReg err: ' + err);
+                  cb({status: 0, msg: '操作异常'});
+                  return;
+                }
+
+                if (res.HasError === 'true') {
+                  console.error('isReg result err: ' + res.Faults.MessageFault.ErrorDescription);
+                  cb({status: 0, msg: '生成验证码失败'});
+                } else {
+                  if (data.type === 1) {
+                    if (res.TotalCount > 0) {
+                      cb({status: 0, msg: '该手机已被注册'});
+                    } else {
+                      cb(null);
+                    }
+                  } else {
+                    if (res.TotalCount > 0) {
+                      cb(null);
+                    } else {
+                      cb({status: 0, msg: '该手机未注册, 请先注册'});
+                    }
+                  }
+                }
+              });
+            },
             function (cb) {
               customerIFS.setCaptcha(data, function (err, res) {
                 if (err) {
@@ -88,6 +120,61 @@ module.exports = function(Customer) {
       }
     );
 
+    //检查验证码
+    Customer.checkCaptcha = function (data, cb) {
+      if (!data.phone) {
+        callback(null, {status: 0, msg: '参数错误'});
+        return;
+      }
+
+      customerIFS.getCaptcha(data, function (err, res) {
+        if (err) {
+          console.error('getCaptcha err: ' + err);
+          cb(null, {status: 0, msg: '操作异常'});
+          return;
+        }
+
+        if (res.HasError === 'true' || !res.Body) {
+          console.error('getCaptcha result err: ' + res.Faults.MessageFault.ErrorDescription);
+          cb(null, {status: 0, msg: '校验激活码失败'});
+        } else {
+          var failureDate = res.Body.FailureDate.split('T');
+          failureDate = failureDate.join(' ');
+          failureDate = (new Date(failureDate)).getTime();
+          var now = (new Date()).getTime();
+          if (now > failureDate) {
+            cb(null, {status: 0, msg: '激活码已过期'});
+            return;
+          }
+
+          if (data.captcha !== res.Body.Captcha) {
+            cb(null, {status: 0, msg: '激活码错误'});
+            return;
+          }
+
+          cb(null, {status: 1, msg: ''});
+        }
+      });
+
+    };
+
+    Customer.remoteMethod(
+        'checkCaptcha',
+        {
+          description: ['检查验证码.返回结果-status:操作结果 0 成功 -1 失败, msg:附带信息'],
+          accepts: [
+            {
+              arg: 'data', type: 'object', required: true, http: {source: 'body'},
+              description: [
+                '检查验证码 {"phone":"string", "captcha":"string"}'
+              ]
+            }
+          ],
+          returns: {arg: 'repData', type: 'string'},
+          http: {path: '/check-captcha', verb: 'post'}
+        }
+    );
+
     //登录
     Customer.login = function (data, callback) {
       if (!data.phone) {
@@ -135,16 +222,21 @@ module.exports = function(Customer) {
                   return;
                 }
 
-                if (res.HasError === 'true' || !res.Body) {
+                if (res.HasError === 'true') {
                   console.error('login result err: ' + res.Faults.MessageFault.ErrorDescription);
                   cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
                 } else {
-                  delete res.Body.Agent;
-                  delete res.Body.ActionLogs;
-                  delete res.Body.CustomerManager;
-                  delete res.Body.DeliveryConfiguration;
-                  delete res.Body.Sales;
-                  cb(null, {status: 1, customer: res.Body});
+                  if (!res.Body) {
+                    cb(null, {status: 0, msg: '用户名或密码错误'});
+                  } else {
+                    delete res.Body.Agent;
+                    delete res.Body.ActionLogs;
+                    delete res.Body.CustomerManager;
+                    delete res.Body.DeliveryConfiguration;
+                    delete res.Body.Sales;
+                    res.Body.IsAudit = res.Body.RegisterStatus === 'AuditPassed';
+                    cb(null, {status: 1, customer: res.Body});
+                  }
                 }
               });
             }
@@ -229,6 +321,27 @@ module.exports = function(Customer) {
                   cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
                 } else {
                   cb(null, {status: 1, customer: res.Body});
+                }
+              });
+            },
+            function (msg, cb) {
+              var obj = {
+                userId: parseInt(msg.customer.CustomerNo),
+                groupId: data.groupId
+              };
+              console.log('obj: ' + JSON.stringify(obj));
+              customerMgIFS.setCustomerGroup(obj, function (err, res) {
+                if (err) {
+                  console.log('setCustomerGroup err: ' + err);
+                  cb({status:0, msg: '操作异常'});
+                  return;
+                }
+
+                if (res.HasError === 'true') {
+                  console.error('setCustomerGroup result err: ' + res.Faults.MessageFault.ErrorDescription);
+                  cb({status:0, msg: res.Faults.MessageFault.ErrorDescription});
+                } else {
+                  cb(null, msg);
                 }
               });
             }
