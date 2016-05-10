@@ -4,57 +4,57 @@
     "connector": "memory"
   },
   "FundingSoap": {
-    "url": "http://121.41.42.28:84/Shopping/CrowdFundingService.svc",
+    "url": "http://10.168.183.56:84/Shopping/CrowdFundingService.svc",
     "name": "FundingSoap",
     "connector": "soap",
-    "wsdl": "http://121.41.42.28:84/Shopping/CrowdFundingService.svc?WSDL"
+    "wsdl": "http://10.168.183.56:84/Shopping/CrowdFundingService.svc?WSDL"
   },
   "FundingQuerySoap": {
-    "url": "http://121.41.42.28:2600/CrowdFundingService.svc",
+    "url": "http://10.168.183.56:2600/CrowdFundingService.svc",
     "name": "FundingQuerySoap",
     "connector": "soap",
-    "wsdl": "http://121.41.42.28:2600/CrowdFundingService.svc/mex?WSDL"
+    "wsdl": "http://10.168.183.56:2600/CrowdFundingService.svc/mex?WSDL"
   },
   "ImgQuerySoap": {
-    "url": "http://121.41.42.28:2600/ShoppingImgService.svc",
+    "url": "http://10.168.183.56:2600/ShoppingImgService.svc",
     "name": "ImgQuerySoap",
     "connector": "soap",
-    "wsdl": "http://121.41.42.28:2600/ShoppingImgService.svc/mex?WSDL"
+    "wsdl": "http://10.168.183.56:2600/ShoppingImgService.svc/mex?WSDL"
   },
   "CustomerSoap": {
-    "url": "http://121.41.42.28:86/CM/CustomerActionService.svc",
+    "url": "http://10.168.183.56:86/CM/CustomerActionService.svc",
     "name": "CustomerSoap",
     "connector": "soap",
-    "wsdl": "http://121.41.42.28:86/CM/CustomerActionService.svc?WSDL"
+    "wsdl": "http://10.168.183.56:86/CM/CustomerActionService.svc?WSDL"
   },
   "CustomerQuerySoap": {
-    "url": "http://121.41.42.28:2600/CustomerQueryService.svc",
+    "url": "http://10.168.183.56:2600/CustomerQueryService.svc",
     "name": "CustomerQuerySoap",
     "connector": "soap",
-    "wsdl": "http://121.41.42.28:2600/CustomerQueryService.svc/mex?WSDL"
+    "wsdl": "http://10.168.183.56:2600/CustomerQueryService.svc/mex?WSDL"
   },
   "CustomerMgSoap": {
-    "url": "http://121.41.42.28:86/CM/CustomerManagementService.svc",
+    "url": "http://10.168.183.56:86/CM/CustomerManagementService.svc",
     "name": "CustomerMgSoap",
     "connector": "soap",
-    "wsdl": "http://121.41.42.28:86/CM/CustomerManagementService.svc?WSDL"
+    "wsdl": "http://10.168.183.56:86/CM/CustomerManagementService.svc?WSDL"
   },
   "SMSSoap": {
-    "url": "http://121.41.42.28:97/sms/SMSService.svc",
+    "url": "http://10.168.183.56:97/sms/SMSService.svc",
     "name": "SMSSoap",
     "connector": "soap",
-    "wsdl": "http://121.41.42.28:97/sms/SMSService.svc?WSDL"
+    "wsdl": "http://10.168.183.56:97/sms/SMSService.svc?WSDL"
   },
   "SupplierSoap": {
-    "url": "http://121.41.42.28:84/Shopping/SupplierProductService.svc",
+    "url": "http://10.168.183.56:84/Shopping/SupplierProductService.svc",
     "name": "SupplierSoap",
     "connector": "soap",
-    "wsdl": "http://121.41.42.28:84/Shopping/SupplierProductService.svc?WSDL"
+    "wsdl": "http://10.168.183.56:84/Shopping/SupplierProductService.svc?WSDL"
   },
   "DistrictQuerySoap": {
-    "url": "http://121.41.42.28:2600/DistrictBrandService.svc",
+    "url": "http://10.168.183.56:2600/DistrictBrandService.svc",
     "name": "DistrictQuerySoap",
     "connector": "soap",
-    "wsdl": "http://121.41.42.28:2600/DistrictBrandService.svc/mex?WSDL"
+    "wsdl": "http://10.168.183.56:2600/DistrictBrandService.svc/mex?WSDL"
   }
 }
